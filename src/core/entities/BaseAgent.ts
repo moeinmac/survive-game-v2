@@ -1,4 +1,4 @@
-import type { AgentState, Position, EncounterRecord, EncounterAction, AgentType } from "../types";
+import type { AgentState, Position, EncounterAction, AgentType } from "../types";
 
 export interface WorldContext {
   tick: number;
