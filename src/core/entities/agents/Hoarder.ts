@@ -1,18 +1,21 @@
-import { BaseAgent, type WorldContext } from "../BaseAgent";
+import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 import type { AgentState, EncounterAction, Position } from "../../types";
+import { BaseAgent, type WorldContext } from "../BaseAgent";
+
+const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.HOARDER_CAUTIOUS;
+const { stuckBurdenLevel, stuckChance, minResourceValue, randomMoveChance } = AGENT_THRESHOLDS.HOARDER_CAUTIOUS;
 
 export class HoarderCautious extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "HOARDER_CAUTIOUS", initialPosition, 20, 150, 4, 0.2, 40);
+    super(id, "HOARDER_CAUTIOUS", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {
-    const SEEK_COST = 0.25;
-    const currentSeekCost = SEEK_COST * (1 + this.state.burden);
+    const currentSeekCost = GLOBAL_MECHANICS.seekCost * (1 + this.state.burden);
 
-    if (this.state.burden > 0.3 && Math.random() < 0.5) return;
+    if (this.state.burden > stuckBurdenLevel && Math.random() < stuckChance) return;
 
-    const highValueResources = context.visibleResources.filter((r) => r.value >= 3);
+    const highValueResources = context.visibleResources.filter((r) => r.value >= minResourceValue);
 
     if (highValueResources.length > 0) {
       let target = highValueResources[0];
@@ -33,7 +36,7 @@ export class HoarderCautious extends BaseAgent {
       return;
     }
 
-    if (Math.random() < 0.2) {
+    if (Math.random() < randomMoveChance) {
       const randomDir = [1, -1, 0];
       const rx = randomDir[Math.floor(Math.random() * randomDir.length)];
       const ry = randomDir[Math.floor(Math.random() * randomDir.length)];

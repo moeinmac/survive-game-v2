@@ -1,5 +1,7 @@
 import type { AgentState, Position, EncounterAction, AgentType, EncounterRecord, Resource } from "../types";
 
+import { GLOBAL_MECHANICS } from "../constants/config";
+
 export interface WorldContext {
   tick: number;
   visibleResources: Resource[];
@@ -47,7 +49,7 @@ export abstract class BaseAgent {
       return;
     }
 
-    this.state.burden = Math.floor(this.state.wealth / 10) * 0.1;
+    this.state.burden = Math.floor(this.state.wealth / GLOBAL_MECHANICS.burdenWealthChunk) * GLOBAL_MECHANICS.burdenMultiplier;
     const currentMetabolism = this.state.baseMetabolism * (1 + this.state.burden);
 
     this.state.wealth -= currentMetabolism;
@@ -61,11 +63,11 @@ export abstract class BaseAgent {
 
     this.state.memory[opponentId].push(record);
 
-    if (this.state.memory[opponentId].length > 5) this.state.memory[opponentId].shift();
+    if (this.state.memory[opponentId].length > GLOBAL_MECHANICS.memoryLimit) this.state.memory[opponentId].shift();
 
     this.state.recentGossip.push(record);
 
-    if (this.state.recentGossip.length > 5) this.state.recentGossip.shift();
+    if (this.state.recentGossip.length > GLOBAL_MECHANICS.memoryLimit) this.state.recentGossip.shift();
   }
 
   public moveTo(newPosition: Position, cost: number): void {

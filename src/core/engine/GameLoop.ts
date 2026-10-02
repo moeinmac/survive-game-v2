@@ -1,6 +1,8 @@
 import type { BaseAgent, WorldContext } from "../entities/BaseAgent";
 import { EncounterManager } from "../mechanics/Encounter";
-import type { GameState } from "../types";
+import type { GameState, Season } from "../types";
+
+import { ENVIRONMENT_CONFIG } from "../constants/config";
 
 export class GameEngine {
   public gameState: GameState;
@@ -102,7 +104,13 @@ export class GameEngine {
   }
 
   private spawnResources(): void {
-    const spawnRate = this.gameState.season === "BOOM" ? 0.3 : this.gameState.season === "BUST" ? 0.02 : 0.1;
+    const spawnRateSeasonMap: Record<Season, number> = {
+      BOOM: ENVIRONMENT_CONFIG.spawnRateBoom,
+      BUST: ENVIRONMENT_CONFIG.spawnRateBust,
+      NORMAL: ENVIRONMENT_CONFIG.spawnRateNormal,
+    };
+
+    const spawnRate = spawnRateSeasonMap[this.gameState.season];
 
     if (Math.random() < spawnRate) {
       this.gameState.resources.push({
@@ -111,9 +119,9 @@ export class GameEngine {
           x: Math.floor(Math.random() * this.gameState.boardWidth),
           y: Math.floor(Math.random() * this.gameState.boardHeight),
         },
-        value: Math.floor(Math.random() * 4) + 1,
+        value: Math.floor(Math.random() * ENVIRONMENT_CONFIG.resourceMaxValue) + ENVIRONMENT_CONFIG.resourceMinValue,
         spawnTick: this.gameState.tick,
-        expiresTick: this.gameState.tick + 40,
+        expiresTick: this.gameState.tick + ENVIRONMENT_CONFIG.resourceLifetimeTicks,
       });
     }
   }

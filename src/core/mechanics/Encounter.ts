@@ -1,6 +1,8 @@
 import { BaseAgent } from "../entities/BaseAgent";
 import type { EncounterRecord, GameState } from "../types";
 
+import { ENCOUNTER_PAYOFFS } from "../constants/config";
+
 export class EncounterManager {
   public static resolve(agentA: BaseAgent, agentB: BaseAgent, gameState: GameState): void {
     if (agentA.state.isDead || agentB.state.isDead) return;
@@ -12,15 +14,15 @@ export class EncounterManager {
     let profitB = 0;
 
     if (agentA.state.type === "ARISTOCRAT_VIP" && agentB.state.type === "ARISTOCRAT_VIP") {
-      profitA = 5;
-      profitB = 5;
+      profitA = ENCOUNTER_PAYOFFS.vipClubReward;
+      profitB = ENCOUNTER_PAYOFFS.vipClubReward;
     } else if (actionA === "IGNORE" || actionB === "IGNORE") {
       if (agentA.state.type === "ARISTOCRAT_VIP" && actionA === "IGNORE") {
-        profitA = 1;
-        profitB = -1;
+        profitA = ENCOUNTER_PAYOFFS.vipTaxAmount;
+        profitB = -ENCOUNTER_PAYOFFS.vipTaxAmount;
       } else if (agentB.state.type === "ARISTOCRAT_VIP" && actionB === "IGNORE") {
-        profitB = 1;
-        profitA = -1;
+        profitB = ENCOUNTER_PAYOFFS.vipTaxAmount;
+        profitA = -ENCOUNTER_PAYOFFS.vipTaxAmount;
       } else {
         profitA = 0;
         profitB = 0;
@@ -34,7 +36,7 @@ export class EncounterManager {
       const isSuccessfulRobbery = defenseRoll > victim.state.defense;
 
       if (isSuccessfulRobbery) {
-        const loot = Math.floor(victim.state.wealth / 2);
+        const loot = Math.floor(victim.state.wealth / ENCOUNTER_PAYOFFS.robberyLootFraction);
         if (isARobber) {
           profitA = loot;
           profitB = -loot;
@@ -43,28 +45,28 @@ export class EncounterManager {
           profitA = -loot;
         }
 
-        gameState.societalTrust = Math.max(0, gameState.societalTrust - 5);
+        gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.robberyTrustPenalty);
       } else {
-        if (isARobber) profitA = -3;
-        else profitB = -3;
+        if (isARobber) profitA = -ENCOUNTER_PAYOFFS.robberyFailPenalty;
+        else profitB = -ENCOUNTER_PAYOFFS.robberyFailPenalty;
       }
     } else {
       if (actionA === "COOPERATE" && actionB === "COOPERATE") {
-        profitA = 2;
-        profitB = 2;
-        gameState.societalTrust = Math.min(100, gameState.societalTrust + 1);
+        profitA = ENCOUNTER_PAYOFFS.cooperateReward;
+        profitB = ENCOUNTER_PAYOFFS.cooperateReward;
+        gameState.societalTrust = Math.min(100, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeCC);
       } else if (actionA === "DEFECT" && actionB === "COOPERATE") {
-        profitA = 4;
-        profitB = -2;
-        gameState.societalTrust = Math.max(0, gameState.societalTrust - 2);
+        profitA = ENCOUNTER_PAYOFFS.defectWinnerReward;
+        profitB = ENCOUNTER_PAYOFFS.defectLoserPenalty;
+        gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeDC);
       } else if (actionA === "COOPERATE" && actionB === "DEFECT") {
-        profitA = -2;
-        profitB = 4;
+        profitA = ENCOUNTER_PAYOFFS.defectLoserPenalty;
+        profitB = ENCOUNTER_PAYOFFS.defectWinnerReward;
         gameState.societalTrust = Math.max(0, gameState.societalTrust - 2);
       } else if (actionA === "DEFECT" && actionB === "DEFECT") {
-        profitA = -1;
-        profitB = -1;
-        gameState.societalTrust = Math.max(0, gameState.societalTrust - 3);
+        profitA = ENCOUNTER_PAYOFFS.mutualDefectPenalty;
+        profitB = ENCOUNTER_PAYOFFS.mutualDefectPenalty;
+        gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeDD);
       }
     }
 

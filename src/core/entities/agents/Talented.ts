@@ -1,15 +1,18 @@
-import { BaseAgent, type WorldContext } from "../BaseAgent";
 import type { AgentState, EncounterAction, Position } from "../../types";
+import { BaseAgent, type WorldContext } from "../BaseAgent";
+
+import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
+
+const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.TALENTED_GRUDGER;
+const { minResourceValue } = AGENT_THRESHOLDS.TALENTED_GRUDGER;
 
 export class TalentedGrudger extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "TALENTED_GRUDGER", initialPosition, 12, 100, 3, 0.4, 40);
+    super(id, "TALENTED_GRUDGER", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {
-    const SEEK_COST = 0.25;
-
-    const perfectResources = context.visibleResources.filter((r) => r.value >= 3);
+    const perfectResources = context.visibleResources.filter((r) => r.value >= minResourceValue);
 
     if (perfectResources.length > 0) {
       let target = perfectResources[0];
@@ -26,7 +29,7 @@ export class TalentedGrudger extends BaseAgent {
       const moveX = Math.sign(target.position.x - this.state.position.x);
       const moveY = Math.sign(target.position.y - this.state.position.y);
 
-      this.moveTo({ x: this.state.position.x + moveX, y: this.state.position.y + moveY }, SEEK_COST);
+      this.moveTo({ x: this.state.position.x + moveX, y: this.state.position.y + moveY }, GLOBAL_MECHANICS.seekCost);
       return;
     }
 
