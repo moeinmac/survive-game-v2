@@ -1,8 +1,8 @@
-import type { AgentState, Position, EncounterAction, AgentType } from "../types";
+import type { AgentState, Position, EncounterAction, AgentType, EncounterRecord, Resource } from "../types";
 
 export interface WorldContext {
   tick: number;
-  visibleResources: any[];
+  visibleResources: Resource[];
   visibleAgents: AgentState[];
   societalTrust: number;
 }
@@ -33,6 +33,7 @@ export abstract class BaseAgent {
       defense,
       burden: 0,
       memory: {},
+      recentGossip: [],
     };
   }
 
@@ -53,19 +54,18 @@ export abstract class BaseAgent {
 
     if (this.state.wealth <= 0) this.die();
   }
-
   public memorizeEncounter(tick: number, opponentId: string, opponentAction: EncounterAction, myAction: EncounterAction, profit: number): void {
-    if (!this.state.memory[opponentId]) {
-      this.state.memory[opponentId] = [];
-    }
+    const record: EncounterRecord = { tick, opponentId, opponentAction, myAction, profit };
 
-    this.state.memory[opponentId].push({
-      tick,
-      opponentId,
-      opponentAction,
-      myAction,
-      profit,
-    });
+    if (!this.state.memory[opponentId]) this.state.memory[opponentId] = [];
+
+    this.state.memory[opponentId].push(record);
+
+    if (this.state.memory[opponentId].length > 5) this.state.memory[opponentId].shift();
+
+    this.state.recentGossip.push(record);
+
+    if (this.state.recentGossip.length > 5) this.state.recentGossip.shift();
   }
 
   public moveTo(newPosition: Position, cost: number): void {

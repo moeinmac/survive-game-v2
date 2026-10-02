@@ -38,7 +38,7 @@ export interface AgentState {
   vision: number;
   baseMetabolism: number;
   defense: number;
-
+  recentGossip: EncounterRecord[];
   burden: number;
   memory: Record<string, EncounterRecord[]>;
 }
@@ -58,4 +58,5 @@ export interface GameState {
   boardHeight: number;
   agents: AgentState[];
   resources: Resource[];
+  societalTrust: number;
 }
