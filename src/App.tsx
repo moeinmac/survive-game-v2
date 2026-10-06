@@ -1,5 +1,7 @@
+import GameDashboard from "./ui/components/dashboard/game-dashboard";
+
 function App() {
-  return <div>Hello World!</div>;
+  return <GameDashboard />;
 }
 
 export default App;
