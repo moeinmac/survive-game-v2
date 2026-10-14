@@ -134,7 +134,6 @@ export function InspectPanel() {
                 Stats
               </h3>
               <StatRow label="Wealth" value={agent.wealth.toFixed(1)} />
-              <StatRow label="Age" value={`${agent.age} / ${agent.maxAge}`} />
               <StatRow label="Metabolism" value={metabolism.toFixed(2)} />
               <StatRow label="Burden" value={agent.burden.toFixed(2)} />
             </section>

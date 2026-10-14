@@ -10,12 +10,10 @@ export type EncounterAction = "COOPERATE" | "DEFECT" | "IGNORE";
 export type AgentType =
   | "CONTENTED_ALTRUIST"
   | "HARDWORKER_COPYCAT"
-  | "HOARDER_CAUTIOUS"
   | "OPTIMIZER_DETECTIVE"
   | "ROBBER_OPPORTUNIST"
   | "ARISTOCRAT_VIP"
-  | "TALENTED_GRUDGER"
-  | "SCAVENGER_VULTURE";
+  | "TALENTED_GRUDGER";
 
 export type GameEventKind =
   | "COOKIE_SPAWN"
@@ -26,11 +24,8 @@ export type GameEventKind =
   | "COOPERATE"
   | "BETRAY"
   | "FIGHT"
-  | "VIP_TAX"
   | "VIP_CLUB"
-  | "SCAVENGE"
-  | "OPTIMIZER_OVERLOAD"
-  | "HOARDER_STUCK";
+  | "OPTIMIZER_OVERLOAD";
 
 export interface GameEvent {
   id: string;
@@ -55,8 +50,6 @@ export interface AgentState {
   position: Position;
 
   wealth: number;
-  age: number;
-  maxAge: number;
   isDead: boolean;
 
   vision: number;
@@ -91,10 +84,8 @@ export const MAX_GAME_EVENTS = 80;
 export const AGENT_TYPES: AgentType[] = [
   "HARDWORKER_COPYCAT",
   "CONTENTED_ALTRUIST",
-  "HOARDER_CAUTIOUS",
   "TALENTED_GRUDGER",
   "ARISTOCRAT_VIP",
-  "SCAVENGER_VULTURE",
   "OPTIMIZER_DETECTIVE",
   "ROBBER_OPPORTUNIST",
 ];

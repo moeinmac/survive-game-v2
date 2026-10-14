@@ -28,7 +28,6 @@ export interface EnvironmentSettings {
 
 export interface EncounterPayoffs {
   vipClubReward: number;
-  vipTaxAmount: number;
   robberyLootFraction: number;
   robberyFailPenalty: number;
   robberyTrustPenalty: number;
@@ -43,7 +42,6 @@ export interface EncounterPayoffs {
 
 export interface BaseStats {
   initialWealth: number;
-  maxAge: number;
   vision: number; // Radius of scanning for resources/agents
   baseMetabolism: number; // Energy consumed per tick
   defense: number; // Chance (0-100) to repel a robbery
@@ -81,7 +79,6 @@ export const ENVIRONMENT_CONFIG: EnvironmentSettings = {
 export const ENCOUNTER_PAYOFFS: EncounterPayoffs = {
   // VIP Rent System
   vipClubReward: 5, // Free wealth generated when two VIPs meet
-  vipTaxAmount: 1, // Wealth extracted from normal agents passing by a VIP
 
   // Robbery Mechanics
   robberyLootFraction: 0.5, // Robber takes 50% of victim's wealth on success
@@ -101,17 +98,15 @@ export const ENCOUNTER_PAYOFFS: EncounterPayoffs = {
 };
 
 /**
- * Base physiological stats for all 8 Agent Types.
+ * Base physiological stats for all 6 Agent Types.
  */
 export const AGENT_BASE_STATS: Record<AgentType, BaseStats> = {
-  HARDWORKER_COPYCAT: { initialWealth: 12, maxAge: 120, vision: 1, baseMetabolism: 0.3, defense: 60 },
-  CONTENTED_ALTRUIST: { initialWealth: 10, maxAge: 100, vision: 2, baseMetabolism: 0.3, defense: 20 },
-  HOARDER_CAUTIOUS: { initialWealth: 20, maxAge: 150, vision: 5, baseMetabolism: 0.2, defense: 40 },
-  TALENTED_GRUDGER: { initialWealth: 12, maxAge: 100, vision: 3, baseMetabolism: 0.4, defense: 40 },
-  ARISTOCRAT_VIP: { initialWealth: 40, maxAge: 150, vision: 0, baseMetabolism: 0.6, defense: 90 },
-  SCAVENGER_VULTURE: { initialWealth: 8, maxAge: 120, vision: 4, baseMetabolism: 0.3, defense: 20 },
-  OPTIMIZER_DETECTIVE: { initialWealth: 15, maxAge: 150, vision: 5, baseMetabolism: 0.15, defense: 50 },
-  ROBBER_OPPORTUNIST: { initialWealth: 10, maxAge: 100, vision: 4, baseMetabolism: 0.35, defense: 70 },
+  HARDWORKER_COPYCAT: { initialWealth: 12, vision: 1, baseMetabolism: 0.3, defense: 60 },
+  CONTENTED_ALTRUIST: { initialWealth: 10, vision: 2, baseMetabolism: 0.3, defense: 20 },
+  TALENTED_GRUDGER: { initialWealth: 12, vision: 3, baseMetabolism: 0.4, defense: 40 },
+  ARISTOCRAT_VIP: { initialWealth: 40, vision: 0, baseMetabolism: 0.6, defense: 90 },
+  OPTIMIZER_DETECTIVE: { initialWealth: 15, vision: 5, baseMetabolism: 0.15, defense: 50 },
+  ROBBER_OPPORTUNIST: { initialWealth: 10, vision: 4, baseMetabolism: 0.35, defense: 70 },
 } as const;
 
 /**
@@ -122,12 +117,6 @@ export const AGENT_THRESHOLDS: Record<AgentType, Record<string, number>> = {
     depressionTrustLevel: 30, // Paralyzed if societal trust falls below this
     wealthSatisfaction: 15, // Stops seeking food if wealth exceeds this
   },
-  HOARDER_CAUTIOUS: {
-    stuckBurdenLevel: 0.3, // Becomes too heavy to move reliably above this burden
-    stuckChance: 0.5, // 50% chance to skip a turn when too heavy
-    minResourceValue: 3, // Ignores cookies with value lower than this
-    randomMoveChance: 0.2, // 20% chance to wander when no target is found
-  },
   TALENTED_GRUDGER: {
     minResourceValue: 3, // Perfectionist filter (ignores cheap resources)
   },
@@ -135,11 +124,6 @@ export const AGENT_THRESHOLDS: Record<AgentType, Record<string, number>> = {
     rentChance: 0.1, // 10% chance per tick to receive automatic rent
     rentAmount: 4, // Amount of automatic rent received
     randomMoveChance: 0.2, // Low chance to take a casual stroll
-  },
-  SCAVENGER_VULTURE: {
-    dyingWealthThreshold: 5, // Targets agents with wealth below this (starving)
-    dyingAgeRemaining: 5, // Targets agents X ticks away from natural death
-    randomMoveChance: 0.3, // Chance to patrol for corpses
   },
   OPTIMIZER_DETECTIVE: {
     calculationTaxPerItem: 0.02, // Energy burned per item scanned (Thinking Tax)

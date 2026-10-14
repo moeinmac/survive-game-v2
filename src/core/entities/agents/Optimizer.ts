@@ -4,12 +4,12 @@ import { shortId } from "../../mechanics/events";
 
 import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.OPTIMIZER_DETECTIVE;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.OPTIMIZER_DETECTIVE;
 const { calculationTaxPerItem, overloadItemCount, minRoi } = AGENT_THRESHOLDS.OPTIMIZER_DETECTIVE;
 
 export class OptimizerDetective extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "OPTIMIZER_DETECTIVE", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "OPTIMIZER_DETECTIVE", initialPosition, initialWealth, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {

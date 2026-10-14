@@ -2,13 +2,13 @@ import { AGENT_BASE_STATS, GLOBAL_MECHANICS } from "../../constants/config";
 import type { AgentState, EncounterAction, Position } from "../../types";
 import { BaseAgent, type WorldContext } from "../BaseAgent";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.HARDWORKER_COPYCAT;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.HARDWORKER_COPYCAT;
 
 export class HardWorkerCopycat extends BaseAgent {
   private currentDirection: { dx: number; dy: number };
 
   constructor(id: string, initialPosition: Position) {
-    super(id, "HARDWORKER_COPYCAT", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "HARDWORKER_COPYCAT", initialPosition, initialWealth, vision, baseMetabolism, defense);
 
     const directions = [
       { dx: 0, dy: 1 },

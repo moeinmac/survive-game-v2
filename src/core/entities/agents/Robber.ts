@@ -3,12 +3,12 @@ import { BaseAgent, type WorldContext } from "../BaseAgent";
 
 import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.ROBBER_OPPORTUNIST;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.ROBBER_OPPORTUNIST;
 const { randomMoveChance, greedWealthThreshold } = AGENT_THRESHOLDS.ROBBER_OPPORTUNIST;
 
 export class RobberOpportunist extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "ROBBER_OPPORTUNIST", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "ROBBER_OPPORTUNIST", initialPosition, initialWealth, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {

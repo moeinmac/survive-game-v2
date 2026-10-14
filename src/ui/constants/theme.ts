@@ -3,10 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bug,
   Bird,
-  Nut,
   VenetianMask,
   Crown,
-  Feather,
   ScanEye,
   Skull,
 } from "lucide-react";
@@ -33,12 +31,6 @@ export const AGENT_THEME: Record<AgentType, AgentVisualConfig> = {
     color: "#10B981",
     badgeBg: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
   },
-  HOARDER_CAUTIOUS: {
-    label: "Hoarder Cautious",
-    Icon: Nut,
-    color: "#F59E0B",
-    badgeBg: "bg-amber-500/20 text-amber-400 border-amber-500/40",
-  },
   TALENTED_GRUDGER: {
     label: "Talented Grudger",
     Icon: VenetianMask,
@@ -50,12 +42,6 @@ export const AGENT_THEME: Record<AgentType, AgentVisualConfig> = {
     Icon: Crown,
     color: "#FBBF24",
     badgeBg: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40",
-  },
-  SCAVENGER_VULTURE: {
-    label: "Scavenger Vulture",
-    Icon: Feather,
-    color: "#6B7280",
-    badgeBg: "bg-zinc-500/20 text-zinc-300 border-zinc-500/40",
   },
   OPTIMIZER_DETECTIVE: {
     label: "Optimizer Detective",

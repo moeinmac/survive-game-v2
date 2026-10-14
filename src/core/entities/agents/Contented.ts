@@ -2,12 +2,12 @@ import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../cons
 import type { AgentState, EncounterAction, Position } from "../../types";
 import { BaseAgent, type WorldContext } from "../BaseAgent";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.CONTENTED_ALTRUIST;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.CONTENTED_ALTRUIST;
 const { depressionTrustLevel, wealthSatisfaction } = AGENT_THRESHOLDS.CONTENTED_ALTRUIST;
 
 export class ContentedAltruist extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "CONTENTED_ALTRUIST", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "CONTENTED_ALTRUIST", initialPosition, initialWealth, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {

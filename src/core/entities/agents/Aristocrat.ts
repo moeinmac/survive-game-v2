@@ -2,12 +2,12 @@ import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../cons
 import type { AgentState, EncounterAction, Position } from "../../types";
 import { BaseAgent, type WorldContext } from "../BaseAgent";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.ARISTOCRAT_VIP;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.ARISTOCRAT_VIP;
 const { rentChance, rentAmount, randomMoveChance } = AGENT_THRESHOLDS.ARISTOCRAT_VIP;
 
 export class AristocratVip extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "ARISTOCRAT_VIP", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "ARISTOCRAT_VIP", initialPosition, initialWealth, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {

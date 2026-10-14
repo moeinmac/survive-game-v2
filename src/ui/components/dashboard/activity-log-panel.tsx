@@ -11,11 +11,8 @@ const KIND_STYLE: Record<GameEventKind, string> = {
   COOPERATE: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
   BETRAY: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40",
   FIGHT: "bg-rose-500/20 text-rose-300 border-rose-500/40",
-  VIP_TAX: "bg-yellow-500/20 text-yellow-200 border-yellow-500/40",
   VIP_CLUB: "bg-yellow-500/25 text-yellow-100 border-yellow-400/50",
-  SCAVENGE: "bg-stone-500/25 text-stone-200 border-stone-400/40",
   OPTIMIZER_OVERLOAD: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
-  HOARDER_STUCK: "bg-amber-600/20 text-amber-200 border-amber-600/40",
 };
 
 const KIND_LABEL: Record<GameEventKind, string> = {
@@ -27,11 +24,8 @@ const KIND_LABEL: Record<GameEventKind, string> = {
   COOPERATE: "همکاری",
   BETRAY: "خیانت",
   FIGHT: "جنگ",
-  VIP_TAX: "مالیات",
   VIP_CLUB: "باشگاه VIP",
-  SCAVENGE: "لاشخوری",
   OPTIMIZER_OVERLOAD: "هنگ",
-  HOARDER_STUCK: "گیر",
 };
 
 export function ActivityLogPanel() {

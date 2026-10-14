@@ -145,7 +145,10 @@ export class GameEngine {
         const distance =
           Math.abs(a.state.position.x - b.state.position.x) + Math.abs(a.state.position.y - b.state.position.y);
 
-        if (distance <= 1) EncounterManager.resolve(a, b, this.gameState);
+        if (distance <= 1) {
+          EncounterManager.resolve(a, b, this.gameState);
+          this.knockback(a, b);
+        }
       }
     }
   }
@@ -167,6 +170,41 @@ export class GameEngine {
         agent.state.id,
       );
     }
+  }
+
+  private knockback(agentA: BaseAgent, agentB: BaseAgent): void {
+    const posA = agentA.state.position;
+    const posB = agentB.state.position;
+    let dx = Math.sign(posB.x - posA.x);
+    const dy = Math.sign(posB.y - posA.y);
+
+    if (dx === 0 && dy === 0) dx = 1;
+
+    posA.x -= dx;
+    posA.y -= dy;
+    posB.x += dx;
+    posB.y += dy;
+    this.enforceBoundaries(agentA);
+    this.enforceBoundaries(agentB);
+
+    if (this.manhattan(agentA, agentB) > 1) return;
+
+    this.stepApart(agentA, -dx, -dy);
+    if (this.manhattan(agentA, agentB) > 1) return;
+    this.stepApart(agentB, dx, dy);
+  }
+
+  private stepApart(agent: BaseAgent, dx: number, dy: number): void {
+    agent.state.position.x += dx;
+    agent.state.position.y += dy;
+    this.enforceBoundaries(agent);
+  }
+
+  private manhattan(agentA: BaseAgent, agentB: BaseAgent): number {
+    return (
+      Math.abs(agentA.state.position.x - agentB.state.position.x) +
+      Math.abs(agentA.state.position.y - agentB.state.position.y)
+    );
   }
 
   private enforceBoundaries(agent: BaseAgent): void {

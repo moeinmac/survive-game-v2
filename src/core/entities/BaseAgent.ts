@@ -26,7 +26,6 @@ export abstract class BaseAgent {
     type: AgentType,
     initialPosition: Position,
     initialWealth: number,
-    maxAge: number,
     vision: number,
     baseMetabolism: number,
     defense: number,
@@ -36,8 +35,6 @@ export abstract class BaseAgent {
       type,
       position: initialPosition,
       wealth: initialWealth,
-      age: 0,
-      maxAge,
       isDead: false,
       vision,
       baseMetabolism,
@@ -50,13 +47,6 @@ export abstract class BaseAgent {
 
   public updateLifeCycle(): void {
     if (this.state.isDead) return;
-
-    this.state.age += 1;
-
-    if (this.state.age >= this.state.maxAge) {
-      this.die();
-      return;
-    }
 
     this.state.burden = Math.floor(this.state.wealth / GLOBAL_MECHANICS.burdenWealthChunk) * GLOBAL_MECHANICS.burdenMultiplier;
     const currentMetabolism = this.state.baseMetabolism * (1 + this.state.burden);

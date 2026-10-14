@@ -3,12 +3,12 @@ import { BaseAgent, type WorldContext } from "../BaseAgent";
 
 import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 
-const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.TALENTED_GRUDGER;
+const { baseMetabolism, defense, initialWealth, vision } = AGENT_BASE_STATS.TALENTED_GRUDGER;
 const { minResourceValue } = AGENT_THRESHOLDS.TALENTED_GRUDGER;
 
 export class TalentedGrudger extends BaseAgent {
   constructor(id: string, initialPosition: Position) {
-    super(id, "TALENTED_GRUDGER", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
+    super(id, "TALENTED_GRUDGER", initialPosition, initialWealth, vision, baseMetabolism, defense);
   }
 
   public act(context: WorldContext): void {

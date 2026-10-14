@@ -5,10 +5,8 @@ import { AGENT_TYPES } from "../core/types";
 
 import { HardWorkerCopycat } from "../core/entities/agents/HardWorker";
 import { ContentedAltruist } from "../core/entities/agents/Contented";
-import { HoarderCautious } from "../core/entities/agents/Hoarder";
 import { TalentedGrudger } from "../core/entities/agents/Talented";
 import { AristocratVip } from "../core/entities/agents/Aristocrat";
-import { ScavengerVulture } from "../core/entities/agents/Scavenger";
 import { OptimizerDetective } from "../core/entities/agents/Optimizer";
 import { RobberOpportunist } from "../core/entities/agents/Robber";
 import type { BaseAgent } from "../core/entities/BaseAgent";
@@ -29,10 +27,8 @@ export type AgentCounts = Record<AgentType, number>;
 export const DEFAULT_AGENT_COUNTS: AgentCounts = {
   HARDWORKER_COPYCAT: 30,
   CONTENTED_ALTRUIST: 30,
-  HOARDER_CAUTIOUS: 30,
   TALENTED_GRUDGER: 30,
   ARISTOCRAT_VIP: 30,
-  SCAVENGER_VULTURE: 30,
   OPTIMIZER_DETECTIVE: 30,
   ROBBER_OPPORTUNIST: 30,
 };
@@ -42,10 +38,8 @@ type AgentCtor = new (id: string, pos: Position) => BaseAgent;
 const AGENT_CLASS_BY_TYPE: Record<AgentType, AgentCtor> = {
   HARDWORKER_COPYCAT: HardWorkerCopycat,
   CONTENTED_ALTRUIST: ContentedAltruist,
-  HOARDER_CAUTIOUS: HoarderCautious,
   TALENTED_GRUDGER: TalentedGrudger,
   ARISTOCRAT_VIP: AristocratVip,
-  SCAVENGER_VULTURE: ScavengerVulture,
   OPTIMIZER_DETECTIVE: OptimizerDetective,
   ROBBER_OPPORTUNIST: RobberOpportunist,
 };

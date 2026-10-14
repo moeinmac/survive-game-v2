@@ -20,35 +20,8 @@ export class EncounterManager {
     if (agentA.state.type === "ARISTOCRAT_VIP" && agentB.state.type === "ARISTOCRAT_VIP") {
       profitA = ENCOUNTER_PAYOFFS.vipClubReward;
       profitB = ENCOUNTER_PAYOFFS.vipClubReward;
-      pushGameEvent(
-        gameState,
-        "VIP_CLUB",
-        `${idA} و ${idB} در باشگاه اشراف پاداش گرفتند.`,
-        agentA.state.id,
-        agentB.state.id,
-      );
+      pushGameEvent(gameState, "VIP_CLUB", `${idA} و ${idB} در باشگاه اشراف پاداش گرفتند.`, agentA.state.id, agentB.state.id);
     } else if (actionA === "IGNORE" || actionB === "IGNORE") {
-      if (agentA.state.type === "ARISTOCRAT_VIP" && actionA === "IGNORE") {
-        profitA = ENCOUNTER_PAYOFFS.vipTaxAmount;
-        profitB = -ENCOUNTER_PAYOFFS.vipTaxAmount;
-        pushGameEvent(
-          gameState,
-          "VIP_TAX",
-          `${idA} از ${idB} مالیات گرفت.`,
-          agentA.state.id,
-          agentB.state.id,
-        );
-      } else if (agentB.state.type === "ARISTOCRAT_VIP" && actionB === "IGNORE") {
-        profitB = ENCOUNTER_PAYOFFS.vipTaxAmount;
-        profitA = -ENCOUNTER_PAYOFFS.vipTaxAmount;
-        pushGameEvent(
-          gameState,
-          "VIP_TAX",
-          `${idB} از ${idA} مالیات گرفت.`,
-          agentB.state.id,
-          agentA.state.id,
-        );
-      }
     } else if (agentA.state.type === "ROBBER_OPPORTUNIST" || agentB.state.type === "ROBBER_OPPORTUNIST") {
       const isARobber = agentA.state.type === "ROBBER_OPPORTUNIST";
       const robber = isARobber ? agentA : agentB;
@@ -70,94 +43,34 @@ export class EncounterManager {
         }
 
         gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.robberyTrustPenalty);
-        pushGameEvent(
-          gameState,
-          "ROBBERY_SUCCESS",
-          `${robberId} از ${victimId} دزدی کرد (+${loot}).`,
-          robber.state.id,
-          victim.state.id,
-        );
+        pushGameEvent(gameState, "ROBBERY_SUCCESS", `${robberId} از ${victimId} دزدی کرد (+${loot}).`, robber.state.id, victim.state.id);
       } else {
         if (isARobber) profitA = -ENCOUNTER_PAYOFFS.robberyFailPenalty;
         else profitB = -ENCOUNTER_PAYOFFS.robberyFailPenalty;
 
-        pushGameEvent(
-          gameState,
-          "ROBBERY_FAIL",
-          `${robberId} نتوانست از ${victimId} دزدی کند و کتک خورد.`,
-          robber.state.id,
-          victim.state.id,
-        );
+        pushGameEvent(gameState, "ROBBERY_FAIL", `${robberId} نتوانست از ${victimId} دزدی کند و کتک خورد.`, robber.state.id, victim.state.id);
       }
     } else {
-      const isScavenge =
-        (agentA.state.type === "SCAVENGER_VULTURE" && actionA === "DEFECT") ||
-        (agentB.state.type === "SCAVENGER_VULTURE" && actionB === "DEFECT");
-
       if (actionA === "COOPERATE" && actionB === "COOPERATE") {
         profitA = ENCOUNTER_PAYOFFS.cooperateReward;
         profitB = ENCOUNTER_PAYOFFS.cooperateReward;
         gameState.societalTrust = Math.min(100, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeCC);
-        pushGameEvent(
-          gameState,
-          "COOPERATE",
-          `${idA} و ${idB} همکاری کردند.`,
-          agentA.state.id,
-          agentB.state.id,
-        );
+        pushGameEvent(gameState, "COOPERATE", `${idA} و ${idB} همکاری کردند.`, agentA.state.id, agentB.state.id);
       } else if (actionA === "DEFECT" && actionB === "COOPERATE") {
         profitA = ENCOUNTER_PAYOFFS.defectWinnerReward;
         profitB = ENCOUNTER_PAYOFFS.defectLoserPenalty;
         gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeDC);
-        if (isScavenge && agentA.state.type === "SCAVENGER_VULTURE") {
-          pushGameEvent(
-            gameState,
-            "SCAVENGE",
-            `${idA} از ضعف ${idB} لاشخوری کرد.`,
-            agentA.state.id,
-            agentB.state.id,
-          );
-        } else {
-          pushGameEvent(
-            gameState,
-            "BETRAY",
-            `${idA} به ${idB} خیانت کرد.`,
-            agentA.state.id,
-            agentB.state.id,
-          );
-        }
+        pushGameEvent(gameState, "BETRAY", `${idA} به ${idB} خیانت کرد.`, agentA.state.id, agentB.state.id);
       } else if (actionA === "COOPERATE" && actionB === "DEFECT") {
         profitA = ENCOUNTER_PAYOFFS.defectLoserPenalty;
         profitB = ENCOUNTER_PAYOFFS.defectWinnerReward;
         gameState.societalTrust = Math.max(0, gameState.societalTrust - 2);
-        if (isScavenge && agentB.state.type === "SCAVENGER_VULTURE") {
-          pushGameEvent(
-            gameState,
-            "SCAVENGE",
-            `${idB} از ضعف ${idA} لاشخوری کرد.`,
-            agentB.state.id,
-            agentA.state.id,
-          );
-        } else {
-          pushGameEvent(
-            gameState,
-            "BETRAY",
-            `${idB} به ${idA} خیانت کرد.`,
-            agentB.state.id,
-            agentA.state.id,
-          );
-        }
+        pushGameEvent(gameState, "BETRAY", `${idB} به ${idA} خیانت کرد.`, agentB.state.id, agentA.state.id);
       } else if (actionA === "DEFECT" && actionB === "DEFECT") {
         profitA = ENCOUNTER_PAYOFFS.mutualDefectPenalty;
         profitB = ENCOUNTER_PAYOFFS.mutualDefectPenalty;
         gameState.societalTrust = Math.max(0, gameState.societalTrust + ENCOUNTER_PAYOFFS.trustChangeDD);
-        pushGameEvent(
-          gameState,
-          "FIGHT",
-          `${idA} و ${idB} با هم جنگیدند.`,
-          agentA.state.id,
-          agentB.state.id,
-        );
+        pushGameEvent(gameState, "FIGHT", `${idA} و ${idB} با هم جنگیدند.`, agentA.state.id, agentB.state.id);
       }
     }
 
