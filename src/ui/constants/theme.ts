@@ -76,3 +76,9 @@ export function trustBarColor(trust: number): string {
   if (trust > 80) return "bg-emerald-500";
   return "bg-amber-500";
 }
+
+export function seasonChipClass(season: string): string {
+  if (season === "BOOM") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/40";
+  if (season === "BUST") return "bg-red-500/20 text-red-300 border-red-500/40";
+  return "bg-cyan-500/20 text-cyan-300 border-cyan-500/40";
+}

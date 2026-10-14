@@ -19,16 +19,16 @@ export const ResourceNode = memo(function ResourceNode({
 
   return (
     <div
-      className="pointer-events-none absolute z-0 flex select-none items-center justify-center"
+      className="pointer-events-none absolute z-20 flex select-none items-center justify-center"
       style={{
         transform: `translate3d(${px}px, ${py}px, 0)`,
         width: CELL_SIZE,
         height: CELL_SIZE,
       }}
     >
-      <div className="relative flex items-center justify-center">
-        <Cookie className="h-3.5 w-3.5 text-amber-400" strokeWidth={2} />
-        <span className="absolute -right-1 -bottom-1 rounded-sm border border-amber-500/30 bg-zinc-950/80 px-1 font-mono text-[9px] font-bold text-amber-300">
+      <div className="cookie-pulse relative flex h-7 w-7 items-center justify-center rounded-full border border-amber-400/50 bg-amber-500/20 shadow-[0_0_12px_rgba(251,191,36,0.45)]">
+        <Cookie className="h-4 w-4 text-amber-300" strokeWidth={2.25} />
+        <span className="absolute -right-1 -bottom-1 rounded border border-amber-400/50 bg-zinc-950 px-1 font-mono text-[9px] font-bold text-amber-200">
           {value}
         </span>
       </div>

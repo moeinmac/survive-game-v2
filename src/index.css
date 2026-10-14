@@ -46,6 +46,22 @@ body,
   border: 1px solid rgb(39 39 42 / 0.9);
 }
 
+.cookie-pulse {
+  animation: cookie-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes cookie-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.45));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.85));
+    transform: scale(1.08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -53,5 +69,9 @@ body,
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .cookie-pulse {
+    animation: none;
   }
 }

@@ -42,16 +42,16 @@ export const AgentNode = memo(function AgentNode({
         }
       }}
       className={`absolute cursor-pointer select-none ${
-        isSelected ? "z-30" : "z-10 hover:brightness-110"
+        isSelected ? "z-30" : "z-[25] hover:brightness-110"
       }`}
       style={{
-        transform: `translate3d(${px}px, ${py}px, 0)${isSelected ? " scale(1.15)" : ""}`,
+        transform: `translate3d(${px}px, ${py}px, 0)${isSelected ? " scale(1.18)" : ""}`,
         width: CELL_SIZE,
         height: CELL_SIZE,
         willChange: "transform",
       }}
     >
-      <div className="mb-0.5 h-1 w-full overflow-hidden rounded-full border border-zinc-700/50 bg-zinc-800">
+      <div className="mb-0.5 h-1.5 w-full overflow-hidden rounded-full border border-zinc-700/60 bg-zinc-900">
         <div
           className={`h-full transition-[width] duration-150 ${
             wealth < 4 ? "bg-red-500" : "bg-emerald-400"
@@ -61,15 +61,15 @@ export const AgentNode = memo(function AgentNode({
       </div>
 
       <div
-        className={`flex h-[calc(100%-6px)] w-full items-center justify-center rounded-md border bg-zinc-900/90 shadow-md ${
-          isSelected ? "ring-2 ring-white/80" : ""
+        className={`flex h-[calc(100%-8px)] w-full items-center justify-center rounded-lg border bg-zinc-950/95 ${
+          isSelected ? "ring-2 ring-white/90" : ""
         }`}
         style={{
           borderColor: theme.color,
-          boxShadow: `0 0 10px ${theme.color}40`,
+          boxShadow: `0 0 14px ${theme.color}55`,
         }}
       >
-        <Icon className="h-3.5 w-3.5" style={{ color: theme.color }} strokeWidth={2.25} />
+        <Icon className="h-4 w-4" style={{ color: theme.color }} strokeWidth={2.4} />
       </div>
     </div>
   );

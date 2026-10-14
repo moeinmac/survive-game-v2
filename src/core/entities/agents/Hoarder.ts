@@ -1,6 +1,7 @@
 import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 import type { AgentState, EncounterAction, Position } from "../../types";
 import { BaseAgent, type WorldContext } from "../BaseAgent";
+import { shortId } from "../../mechanics/events";
 
 const { baseMetabolism, defense, initialWealth, maxAge, vision } = AGENT_BASE_STATS.HOARDER_CAUTIOUS;
 const { stuckBurdenLevel, stuckChance, minResourceValue, randomMoveChance } = AGENT_THRESHOLDS.HOARDER_CAUTIOUS;
@@ -13,7 +14,10 @@ export class HoarderCautious extends BaseAgent {
   public act(context: WorldContext): void {
     const currentSeekCost = GLOBAL_MECHANICS.seekCost * (1 + this.state.burden);
 
-    if (this.state.burden > stuckBurdenLevel && Math.random() < stuckChance) return;
+    if (this.state.burden > stuckBurdenLevel && Math.random() < stuckChance) {
+      context.emitEvent("HOARDER_STUCK", `${shortId(this.state.id)} از سنگینی بار گیر کرد.`);
+      return;
+    }
 
     const highValueResources = context.visibleResources.filter((r) => r.value >= minResourceValue);
 

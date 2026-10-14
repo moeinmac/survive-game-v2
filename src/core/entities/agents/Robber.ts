@@ -46,7 +46,8 @@ export class RobberOpportunist extends BaseAgent {
     }
   }
 
-  public getEncounterAction(_: AgentState): EncounterAction {
+  public getEncounterAction(opponent: AgentState): EncounterAction {
+    void opponent;
     return "DEFECT";
   }
 }

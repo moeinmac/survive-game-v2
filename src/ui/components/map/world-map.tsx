@@ -57,8 +57,10 @@ export function WorldMap() {
   const scaleRef = useRef(scale);
   const offsetRef = useRef(offset);
 
-  scaleRef.current = scale;
-  offsetRef.current = offset;
+  useEffect(() => {
+    scaleRef.current = scale;
+    offsetRef.current = offset;
+  }, [scale, offset]);
 
   const mapWidth = boardWidth * CELL_SIZE;
   const mapHeight = boardHeight * CELL_SIZE;

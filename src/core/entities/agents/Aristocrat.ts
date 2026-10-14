@@ -10,7 +10,8 @@ export class AristocratVip extends BaseAgent {
     super(id, "ARISTOCRAT_VIP", initialPosition, initialWealth, maxAge, vision, baseMetabolism, defense);
   }
 
-  public act(_: WorldContext): void {
+  public act(context: WorldContext): void {
+    void context;
     if (Math.random() < rentChance) this.state.wealth += rentAmount;
 
     if (Math.random() < randomMoveChance) {

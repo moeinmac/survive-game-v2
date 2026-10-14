@@ -1,5 +1,6 @@
 import type { AgentState, EncounterAction, Position } from "../../types";
 import { BaseAgent, type WorldContext } from "../BaseAgent";
+import { shortId } from "../../mechanics/events";
 
 import { AGENT_BASE_STATS, AGENT_THRESHOLDS, GLOBAL_MECHANICS } from "../../constants/config";
 
@@ -17,7 +18,13 @@ export class OptimizerDetective extends BaseAgent {
     const calculationTax = context.visibleResources.length * calculationTaxPerItem;
     this.state.wealth -= calculationTax;
 
-    if (context.visibleResources.length > overloadItemCount) return;
+    if (context.visibleResources.length > overloadItemCount) {
+      context.emitEvent(
+        "OPTIMIZER_OVERLOAD",
+        `${shortId(this.state.id)} هنگ کرد و نتوانست انتخاب کند.`,
+      );
+      return;
+    }
 
     let bestTarget = null;
     let maxROI = -Infinity;

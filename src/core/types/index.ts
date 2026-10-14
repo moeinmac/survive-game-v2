@@ -17,6 +17,30 @@ export type AgentType =
   | "TALENTED_GRUDGER"
   | "SCAVENGER_VULTURE";
 
+export type GameEventKind =
+  | "COOKIE_SPAWN"
+  | "COOKIE_PICKUP"
+  | "DEATH"
+  | "ROBBERY_SUCCESS"
+  | "ROBBERY_FAIL"
+  | "COOPERATE"
+  | "BETRAY"
+  | "FIGHT"
+  | "VIP_TAX"
+  | "VIP_CLUB"
+  | "SCAVENGE"
+  | "OPTIMIZER_OVERLOAD"
+  | "HOARDER_STUCK";
+
+export interface GameEvent {
+  id: string;
+  tick: number;
+  kind: GameEventKind;
+  message: string;
+  actorId?: string;
+  targetId?: string;
+}
+
 export interface EncounterRecord {
   tick: number;
   opponentId: string;
@@ -59,4 +83,18 @@ export interface GameState {
   agents: AgentState[];
   resources: Resource[];
   societalTrust: number;
+  events: GameEvent[];
 }
+
+export const MAX_GAME_EVENTS = 80;
+
+export const AGENT_TYPES: AgentType[] = [
+  "HARDWORKER_COPYCAT",
+  "CONTENTED_ALTRUIST",
+  "HOARDER_CAUTIOUS",
+  "TALENTED_GRUDGER",
+  "ARISTOCRAT_VIP",
+  "SCAVENGER_VULTURE",
+  "OPTIMIZER_DETECTIVE",
+  "ROBBER_OPPORTUNIST",
+];

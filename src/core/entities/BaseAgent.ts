@@ -1,4 +1,12 @@
-import type { AgentState, Position, EncounterAction, AgentType, EncounterRecord, Resource } from "../types";
+import type {
+  AgentState,
+  Position,
+  EncounterAction,
+  AgentType,
+  EncounterRecord,
+  Resource,
+  GameEventKind,
+} from "../types";
 
 import { GLOBAL_MECHANICS } from "../constants/config";
 
@@ -7,6 +15,7 @@ export interface WorldContext {
   visibleResources: Resource[];
   visibleAgents: AgentState[];
   societalTrust: number;
+  emitEvent: (kind: GameEventKind, message: string, targetId?: string) => void;
 }
 
 export abstract class BaseAgent {

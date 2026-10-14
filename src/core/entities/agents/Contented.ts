@@ -48,7 +48,8 @@ export class ContentedAltruist extends BaseAgent {
     if (rx !== 0 || ry !== 0) this.moveTo({ x: this.state.position.x + rx, y: this.state.position.y + ry }, GLOBAL_MECHANICS.seekCost);
   }
 
-  public getEncounterAction(_: AgentState): EncounterAction {
+  public getEncounterAction(opponent: AgentState): EncounterAction {
+    void opponent;
     return "COOPERATE";
   }
 }
