@@ -1,6 +1,7 @@
-import { memo, type CSSProperties } from "react";
+import { memo } from "react";
 import type { AgentType } from "../../../core/types";
-import { AGENT_THEME, CELL_SIZE, type AgentShape } from "../../constants/theme";
+import { AGENT_THEME, CELL_SIZE } from "../../constants/theme";
+import { AgentAvatar } from "./agent-avatar";
 
 interface AgentNodeProps {
   id: string;
@@ -13,16 +14,7 @@ interface AgentNodeProps {
   onSelect: (id: string) => void;
 }
 
-const BODY_SIZE = 22;
-
-const SHAPE_STYLE: Record<AgentShape, CSSProperties> = {
-  circle: { borderRadius: "9999px" },
-  squircle: { borderRadius: "34%" },
-  diamond: { borderRadius: "22%", transform: "rotate(45deg) scale(0.86)" },
-  hex: { clipPath: "polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0% 50%)" },
-  pill: { borderRadius: "9999px", height: BODY_SIZE * 0.78, marginTop: BODY_SIZE * 0.11 },
-  blob: { borderRadius: "62% 38% 54% 46% / 48% 58% 42% 52%" },
-};
+const BODY_SIZE = 25;
 
 function wealthBarColor(wealth: number): string {
   if (wealth < 4) return "#fb7185";
@@ -45,7 +37,6 @@ export const AgentNode = memo(function AgentNode({
   const py = y * CELL_SIZE;
   const wealthPercent = Math.min(100, Math.max(10, (wealth / 30) * 100));
   const isHungry = wealth < 4;
-  const eyeSize = isHungry ? 2.5 : 3.5;
 
   return (
     <div
@@ -78,7 +69,7 @@ export const AgentNode = memo(function AgentNode({
       >
         <div
           key={bumpTick ?? 0}
-          className={`relative mt-0.5 ${bumpTick !== undefined ? "agent-bump" : ""}`}
+          className={`relative ${bumpTick !== undefined ? "agent-bump" : ""}`}
           style={{ width: BODY_SIZE, height: BODY_SIZE }}
         >
           <div
@@ -88,37 +79,12 @@ export const AgentNode = memo(function AgentNode({
 
           {isSelected ? (
             <div
-              className="absolute -inset-1 rounded-full ring-2 ring-white/90"
+              className="absolute -inset-0.5 top-1 rounded-full ring-2 ring-white/90"
               aria-hidden
             />
           ) : null}
 
-          <div
-            className="absolute inset-0"
-            style={{
-              width: BODY_SIZE,
-              height: BODY_SIZE,
-              backgroundColor: theme.fill,
-              ...SHAPE_STYLE[theme.shape],
-            }}
-          />
-
-          <div
-            className="absolute inset-0 flex items-center justify-center gap-[4px]"
-            style={{ paddingBottom: isHungry ? 0 : 2 }}
-            aria-hidden
-          >
-            {[0, 1].map((eye) => (
-              <span
-                key={eye}
-                className="rounded-full bg-slate-900"
-                style={{
-                  width: eyeSize,
-                  height: isHungry ? eyeSize : eyeSize + 1,
-                }}
-              />
-            ))}
-          </div>
+          <AgentAvatar type={type} hungry={isHungry} size={BODY_SIZE} />
         </div>
 
         <div className="mt-auto mb-px h-[5px] w-[22px] overflow-hidden rounded-full bg-slate-950/70">

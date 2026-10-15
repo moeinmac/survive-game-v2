@@ -1,77 +1,68 @@
 import type { AgentType, GameEventKind } from "../../core/types";
 import type { LucideIcon } from "lucide-react";
 import {
-  Bug,
-  Bird,
-  VenetianMask,
+  HardHat,
+  Heart,
+  Sparkles,
   Crown,
   ScanEye,
-  Skull,
+  VenetianMask,
 } from "lucide-react";
 
 export const CELL_SIZE = 32;
-
-export type AgentShape = "circle" | "squircle" | "diamond" | "hex" | "pill" | "blob";
 
 export interface AgentVisualConfig {
   label: string;
   Icon: LucideIcon;
   /** Accent color used by panels and charts. */
   color: string;
-  /** Solid body color for the on-map avatar. */
+  /** Body color for the on-map avatar. */
   fill: string;
-  shape: AgentShape;
   badgeBg: string;
 }
 
 export const AGENT_THEME: Record<AgentType, AgentVisualConfig> = {
   HARDWORKER_COPYCAT: {
     label: "HardWorker Copycat",
-    Icon: Bug,
-    color: "#7DB4FF",
-    fill: "#7DB4FF",
-    shape: "squircle",
-    badgeBg: "bg-blue-400/15 text-blue-300 border-blue-400/30",
+    Icon: HardHat,
+    color: "#18D6C6",
+    fill: "#18D6C6",
+    badgeBg: "bg-[#18D6C6]/15 text-[#18D6C6] border-[#18D6C6]/30",
   },
   CONTENTED_ALTRUIST: {
     label: "Contented Altruist",
-    Icon: Bird,
-    color: "#6EE7B7",
-    fill: "#6EE7B7",
-    shape: "circle",
-    badgeBg: "bg-emerald-400/15 text-emerald-300 border-emerald-400/30",
+    Icon: Heart,
+    color: "#F43075",
+    fill: "#F43075",
+    badgeBg: "bg-[#F43075]/15 text-[#FF6B9E] border-[#F43075]/30",
   },
   TALENTED_GRUDGER: {
     label: "Talented Grudger",
-    Icon: VenetianMask,
-    color: "#C4B5FD",
-    fill: "#C4B5FD",
-    shape: "hex",
-    badgeBg: "bg-violet-400/15 text-violet-300 border-violet-400/30",
+    Icon: Sparkles,
+    color: "#E2791C",
+    fill: "#E2791C",
+    badgeBg: "bg-[#E2791C]/15 text-[#F59E4B] border-[#E2791C]/30",
   },
   ARISTOCRAT_VIP: {
     label: "Aristocrat VIP",
     Icon: Crown,
-    color: "#FCD34D",
-    fill: "#FCD34D",
-    shape: "pill",
-    badgeBg: "bg-amber-400/15 text-amber-200 border-amber-400/30",
+    color: "#F60609",
+    fill: "#F60609",
+    badgeBg: "bg-[#F60609]/15 text-[#FF5A5C] border-[#F60609]/30",
   },
   OPTIMIZER_DETECTIVE: {
     label: "Optimizer Detective",
     Icon: ScanEye,
-    color: "#67E8F9",
-    fill: "#67E8F9",
-    shape: "blob",
-    badgeBg: "bg-cyan-400/15 text-cyan-300 border-cyan-400/30",
+    color: "#7C6CFF",
+    fill: "#7C6CFF",
+    badgeBg: "bg-[#7C6CFF]/15 text-[#A89DFF] border-[#7C6CFF]/30",
   },
   ROBBER_OPPORTUNIST: {
     label: "Robber Opportunist",
-    Icon: Skull,
-    color: "#FF8A80",
-    fill: "#FF8A80",
-    shape: "diamond",
-    badgeBg: "bg-rose-400/15 text-rose-300 border-rose-400/30",
+    Icon: VenetianMask,
+    color: "#E2E8F0",
+    fill: "#F1F5F9",
+    badgeBg: "bg-white/10 text-slate-100 border-white/25",
   },
 };
 

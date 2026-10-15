@@ -117,7 +117,7 @@ function floatersForEvent(event: GameEvent, byId: Map<string, AgentState>): Floa
     case "ROBBERY_FAIL":
       return [make("t", target ? center(target) : center(actor), style.emoji)];
     case "COOKIE_PICKUP": {
-      const value = parseNumber(event.message, /ارزش\s*([\d.]+)/);
+      const value = parseNumber(event.message, /worth\s*([\d.]+)/);
       return [make("a", center(actor), value === null ? style.emoji : `${style.emoji} ${formatAmount(value)}`)];
     }
     default:

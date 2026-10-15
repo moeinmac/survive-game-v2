@@ -17,8 +17,8 @@ export const TICK_INTERVAL_MS = 1000;
 
 export const DEFAULT_BOARD_WIDTH = 100;
 export const DEFAULT_BOARD_HEIGHT = 70;
-export const DEFAULT_SEED_COOKIES = 60;
-export const SCATTER_COOKIE_COUNT = 40;
+export const DEFAULT_SEED_COOKIES = 180;
+export const SCATTER_COOKIE_COUNT = 160;
 
 export type LeftPanel = null | "log" | "settings" | "analytics";
 

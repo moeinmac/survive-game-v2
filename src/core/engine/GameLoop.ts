@@ -6,9 +6,9 @@ import type { GameState, Resource, Season } from "../types";
 import { ENVIRONMENT_CONFIG } from "../constants/config";
 
 const SPAWN_ATTEMPTS: Record<Season, number> = {
-  BUST: 1,
-  NORMAL: 3,
-  BOOM: 6,
+  BUST: 6,
+  NORMAL: 10,
+  BOOM: 16,
 };
 
 export class GameEngine {
@@ -65,7 +65,7 @@ export class GameEngine {
         pushGameEvent(
           this.gameState,
           "DEATH",
-          `${shortId(agent.state.id)} از بین رفت.`,
+          `${shortId(agent.state.id)} died.`,
           agent.state.id,
         );
       }
@@ -87,7 +87,7 @@ export class GameEngine {
       spawned++;
     }
     if (announce && spawned > 0) {
-      pushGameEvent(this.gameState, "COOKIE_SPAWN", `${spawned} کوکی روی زمین پخش شد.`);
+      pushGameEvent(this.gameState, "COOKIE_SPAWN", `${spawned} cookies scattered on the ground.`);
     }
   }
 
@@ -166,7 +166,7 @@ export class GameEngine {
       pushGameEvent(
         this.gameState,
         "COOKIE_PICKUP",
-        `${shortId(agent.state.id)} یک کوکی (ارزش ${resource.value}) برداشت.`,
+        `${shortId(agent.state.id)} picked up a cookie (worth ${resource.value}).`,
         agent.state.id,
       );
     }
@@ -234,7 +234,7 @@ export class GameEngine {
       pushGameEvent(
         this.gameState,
         "COOKIE_SPAWN",
-        spawned === 1 ? `یک کوکی تازه روی زمین ظاهر شد.` : `${spawned} کوکی تازه روی زمین ظاهر شد.`,
+        spawned === 1 ? `A fresh cookie appeared.` : `${spawned} fresh cookies appeared.`,
       );
     }
   }

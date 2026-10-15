@@ -65,9 +65,9 @@ export const GLOBAL_MECHANICS: GlobalMechanics = {
  * Map, Seasons, and Resource Spawning rates.
  */
 export const ENVIRONMENT_CONFIG: EnvironmentSettings = {
-  spawnRateBoom: 0.3, // 30% chance to spawn a cookie per tick during Boom
-  spawnRateNormal: 0.1, // 10% chance during Normal economy
-  spawnRateBust: 0.02, // 2% chance during Bust (Famine)
+  spawnRateBoom: 0.55, // per attempt, Boom
+  spawnRateNormal: 0.4, // per attempt, Normal
+  spawnRateBust: 0.18, // per attempt, Bust (still scarce, but visible on a large board)
   resourceMinValue: 1, // Minimum nutritional value of a spawned cookie
   resourceMaxValue: 4, // Maximum nutritional value of a spawned cookie
   resourceLifetimeTicks: 40, // Ticks before an uncollected cookie rots and disappears

@@ -16,16 +16,16 @@ const KIND_STYLE: Record<GameEventKind, string> = {
 };
 
 const KIND_LABEL: Record<GameEventKind, string> = {
-  COOKIE_SPAWN: "کوکی",
-  COOKIE_PICKUP: "برداشت",
-  DEATH: "مرگ",
-  ROBBERY_SUCCESS: "دزدی",
-  ROBBERY_FAIL: "شکست دزدی",
-  COOPERATE: "همکاری",
-  BETRAY: "خیانت",
-  FIGHT: "جنگ",
-  VIP_CLUB: "باشگاه VIP",
-  OPTIMIZER_OVERLOAD: "هنگ",
+  COOKIE_SPAWN: "Cookie",
+  COOKIE_PICKUP: "Pickup",
+  DEATH: "Death",
+  ROBBERY_SUCCESS: "Robbery",
+  ROBBERY_FAIL: "Robbery failed",
+  COOPERATE: "Cooperate",
+  BETRAY: "Betray",
+  FIGHT: "Fight",
+  VIP_CLUB: "VIP club",
+  OPTIMIZER_OVERLOAD: "Overload",
 };
 
 export function ActivityLogPanel() {
@@ -35,7 +35,6 @@ export function ActivityLogPanel() {
 
   return (
     <aside
-      dir="rtl"
       className={`absolute inset-y-0 left-0 z-50 flex w-[min(100vw,380px)] flex-col transition-transform duration-300 ease-out ${
         open ? "translate-x-0" : "pointer-events-none -translate-x-full"
       }`}
@@ -44,12 +43,12 @@ export function ActivityLogPanel() {
       <div className="glass-panel m-4 flex h-[calc(100%-2rem)] flex-col overflow-hidden rounded-2xl shadow-2xl shadow-black/50">
         <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-100">لاگ رویدادها</h2>
-            <p className="mt-0.5 text-[11px] text-zinc-500">مغز جامعه — زنده</p>
+            <h2 className="text-sm font-semibold text-zinc-100">Event log</h2>
+            <p className="mt-0.5 text-[11px] text-zinc-500">The society's brain, live</p>
           </div>
           <button
             type="button"
-            aria-label="بستن"
+            aria-label="Close"
             onClick={() => setLeftPanel(null)}
             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-zinc-800 hover:text-zinc-100"
           >
@@ -60,7 +59,7 @@ export function ActivityLogPanel() {
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {events.length === 0 ? (
             <p className="px-2 py-8 text-center text-sm text-zinc-500">
-              هنوز رویدادی ثبت نشده — بازی را شروع کنید
+              No events yet. Start the game.
             </p>
           ) : (
             <ul className="flex flex-col gap-2">

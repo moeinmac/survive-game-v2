@@ -33,12 +33,12 @@ function SettingsPanelBody() {
     <div className="glass-panel m-4 flex h-[calc(100%-2rem)] flex-col overflow-hidden rounded-2xl shadow-2xl shadow-black/50">
       <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-4">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-100">تنظیمات بازی</h2>
-          <p className="mt-0.5 text-[11px] text-zinc-500">فصل، جمعیت، کوکی</p>
+          <h2 className="text-sm font-semibold text-zinc-100">Game settings</h2>
+          <p className="mt-0.5 text-[11px] text-zinc-500">Season, population, cookies</p>
         </div>
         <button
           type="button"
-          aria-label="بستن"
+          aria-label="Close"
           onClick={() => setLeftPanel(null)}
           className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-zinc-800 hover:text-zinc-100"
         >
@@ -49,7 +49,7 @@ function SettingsPanelBody() {
       <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
         <section>
           <h3 className="mb-2 text-[10px] font-medium tracking-wider text-zinc-500 uppercase">
-            فصل
+            Season
           </h3>
           <div className="flex gap-2">
             {SEASONS.map((season) => (
@@ -75,9 +75,9 @@ function SettingsPanelBody() {
         <section>
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-[10px] font-medium tracking-wider text-zinc-500 uppercase">
-              تعداد هر نوع
+              Count per type
             </h3>
-            <span className="font-mono text-[11px] text-zinc-400">جمع: {totalAgents}</span>
+            <span className="font-mono text-[11px] text-zinc-400">Total: {totalAgents}</span>
           </div>
           <ul className="space-y-2">
             {AGENT_TYPES.map((type) => {
@@ -111,7 +111,7 @@ function SettingsPanelBody() {
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2.5 text-sm font-semibold text-amber-200 transition-colors duration-200 hover:bg-amber-500/25"
           >
             <Cookie className="h-4 w-4" />
-            پخش {SCATTER_COOKIE_COUNT} کوکی روی زمین
+            Scatter {SCATTER_COOKIE_COUNT} cookies
           </button>
 
           <button
@@ -120,7 +120,7 @@ function SettingsPanelBody() {
             className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/15 px-3 py-2.5 text-sm font-semibold text-cyan-200 transition-colors duration-200 hover:bg-cyan-500/25"
           >
             <RotateCcw className="h-4 w-4" />
-            اعمال و شروع مجدد
+            Apply and restart
           </button>
         </section>
       </div>
@@ -133,7 +133,6 @@ export function SettingsPanel() {
 
   return (
     <aside
-      dir="rtl"
       className={`absolute inset-y-0 left-0 z-50 flex w-[min(100vw,380px)] flex-col transition-transform duration-300 ease-out ${
         open ? "translate-x-0" : "pointer-events-none -translate-x-full"
       }`}

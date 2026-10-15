@@ -21,7 +21,7 @@ export class OptimizerDetective extends BaseAgent {
     if (context.visibleResources.length > overloadItemCount) {
       context.emitEvent(
         "OPTIMIZER_OVERLOAD",
-        `${shortId(this.state.id)} هنگ کرد و نتوانست انتخاب کند.`,
+        `${shortId(this.state.id)} froze and couldn't decide.`,
       );
       return;
     }
