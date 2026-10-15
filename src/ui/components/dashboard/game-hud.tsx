@@ -1,7 +1,12 @@
-import { BarChart3, Brain, Cookie, Pause, Play, Settings2 } from "lucide-react";
+import { BarChart3, Pause, Play, Settings2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useGameStore, type LeftPanel } from "../../../store/useGameStore";
-import { seasonChipClass, trustBarColor } from "../../constants/theme";
+import {
+  seasonChipClass,
+  seasonEmoji,
+  trustBarColor,
+  trustMood,
+} from "../../constants/theme";
 
 function PanelToggle({
   panel,
@@ -21,15 +26,29 @@ function PanelToggle({
       type="button"
       aria-label={label}
       aria-pressed={active}
+      title={label}
       onClick={() => setLeftPanel(panel)}
-      className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors duration-200 ${
+      className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full transition duration-200 hover:scale-105 active:scale-95 ${
         active
-          ? "bg-cyan-500/25 text-cyan-300"
-          : "bg-zinc-800/60 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+          ? "bg-white text-slate-900"
+          : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
       }`}
     >
       {children}
     </button>
+  );
+}
+
+function StatChip({ emoji, label, children }: { emoji: string; label: string; children: ReactNode }) {
+  return (
+    <div
+      title={label}
+      className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-sm font-extrabold text-slate-100 tabular-nums"
+    >
+      <span aria-hidden>{emoji}</span>
+      <span className="sr-only">{label}</span>
+      {children}
+    </div>
   );
 }
 
@@ -45,85 +64,72 @@ export function GameHud() {
   const leftPanel = useGameStore((s) => s.leftPanel);
   const togglePlay = useGameStore((s) => s.togglePlay);
 
+  const trust = Math.min(100, Math.max(0, societalTrust));
+
   return (
-    <div className="pointer-events-none absolute top-5 left-1/2 z-50 w-[min(96vw,780px)] -translate-x-1/2">
-      <div className="glass-panel pointer-events-auto flex flex-wrap items-center gap-4 rounded-2xl px-4 py-3 shadow-2xl shadow-black/40 sm:gap-5 sm:px-5">
-        <div className="flex flex-col">
-          <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-            Tick
-          </span>
-          <span className="font-mono text-xl font-bold text-white tabular-nums">{tick}</span>
-        </div>
+    <div className="pointer-events-none absolute top-5 left-1/2 z-50 w-max max-w-[96vw] -translate-x-1/2">
+      <div className="glass-panel pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-[2rem] py-2 pr-2 pl-2 shadow-2xl shadow-black/40 sm:gap-3 sm:rounded-full">
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={isRunning ? "Pause simulation" : "Start simulation"}
+          className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-full shadow-lg transition duration-200 hover:scale-105 active:scale-95 ${
+            isRunning
+              ? "bg-amber-300 text-amber-950 shadow-amber-500/20"
+              : "bg-emerald-400 text-emerald-950 shadow-emerald-500/25"
+          }`}
+        >
+          {isRunning ? (
+            <Pause className="h-5 w-5" fill="currentColor" />
+          ) : (
+            <Play className="ml-0.5 h-5 w-5" fill="currentColor" />
+          )}
+        </button>
 
-        <div className="flex flex-col border-l border-zinc-700/80 pl-4">
-          <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-            Societal Trust
+        <StatChip emoji="⏱" label="Tick">
+          {tick}
+        </StatChip>
+
+        <div
+          title="Societal trust"
+          className="flex items-center gap-2 rounded-full bg-white/5 py-1.5 pr-3 pl-2"
+        >
+          <span className="text-lg leading-none" aria-hidden>
+            {trustMood(trust)}
           </span>
-          <div className="mt-1 flex items-center gap-2">
-            <div className="h-2 w-24 overflow-hidden rounded-full bg-zinc-800 sm:w-28">
-              <div
-                className={`h-full rounded-full transition-[width,background-color] duration-200 ${trustBarColor(societalTrust)}`}
-                style={{ width: `${Math.min(100, Math.max(0, societalTrust))}%` }}
-              />
-            </div>
-            <span className="font-mono text-sm font-semibold text-zinc-100 tabular-nums">
-              {Math.round(societalTrust)}%
-            </span>
+          <div className="h-3 w-24 overflow-hidden rounded-full bg-slate-950/60 sm:w-32">
+            <div
+              className={`h-full rounded-full transition-[width,background-color] duration-500 ease-out ${trustBarColor(trust)}`}
+              style={{ width: `${trust}%` }}
+            />
           </div>
+          <span className="min-w-9 text-right text-sm font-extrabold text-slate-100 tabular-nums">
+            {Math.round(trust)}%
+          </span>
+          <span className="sr-only">Societal trust</span>
         </div>
 
-        <div className="flex flex-col border-l border-zinc-700/80 pl-4">
-          <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-            Population
-          </span>
-          <span className="font-mono text-sm font-bold text-zinc-100 tabular-nums">
-            {population}
-          </span>
-        </div>
+        <StatChip emoji="👥" label="Population">
+          {population}
+        </StatChip>
 
-        <div className="flex flex-col border-l border-zinc-700/80 pl-4">
-          <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-            Cookies
-          </span>
-          <span className="inline-flex items-center gap-1 font-mono text-sm font-bold text-amber-300 tabular-nums">
-            <Cookie className="h-3.5 w-3.5" />
-            {cookieCount}
-          </span>
-        </div>
+        <StatChip emoji="🍪" label="Cookies">
+          {cookieCount}
+        </StatChip>
 
-        <div className="flex flex-col border-l border-zinc-700/80 pl-4">
-          <span className="text-[10px] font-medium tracking-wider text-zinc-400 uppercase">
-            Season
-          </span>
-          <span
-            className={`mt-0.5 inline-flex w-fit rounded border px-1.5 py-0.5 text-[10px] font-bold tracking-wide ${seasonChipClass(season)}`}
-          >
-            {season}
-          </span>
-        </div>
+        <span
+          className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-extrabold tracking-wide ${seasonChipClass(season)}`}
+        >
+          <span aria-hidden>{seasonEmoji(season)}</span>
+          {season.charAt(0) + season.slice(1).toLowerCase()}
+        </span>
 
-        <div className="ml-auto flex items-center gap-2 border-l border-zinc-700/80 pl-4">
-          <button
-            type="button"
-            onClick={togglePlay}
-            aria-label={isRunning ? "Stop simulation" : "Start simulation"}
-            className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-xl transition-colors duration-200 ${
-              isRunning
-                ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-            }`}
-          >
-            {isRunning ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-          </button>
-
-          <PanelToggle panel="log" active={leftPanel === "log"} label="Activity log">
-            <Brain className="h-5 w-5" />
-          </PanelToggle>
+        <div className="flex items-center gap-1.5">
           <PanelToggle panel="settings" active={leftPanel === "settings"} label="Settings">
-            <Settings2 className="h-5 w-5" />
+            <Settings2 className="h-[18px] w-[18px]" />
           </PanelToggle>
           <PanelToggle panel="analytics" active={leftPanel === "analytics"} label="Analytics">
-            <BarChart3 className="h-5 w-5" />
+            <BarChart3 className="h-[18px] w-[18px]" />
           </PanelToggle>
         </div>
       </div>

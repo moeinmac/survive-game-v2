@@ -2,7 +2,9 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { Minus, Move, Plus } from "lucide-react";
 import { useGameStore } from "../../../store/useGameStore";
 import { CELL_SIZE } from "../../constants/theme";
+import { useBumpTicks } from "../../hooks/useFloatingEvents";
 import { AgentNode } from "./agent-node";
+import { FloatingEventsLayer } from "./floating-events-layer";
 import { ResourceNode } from "./resource-node";
 
 const ZOOM_STEP = 1.28;
@@ -43,6 +45,7 @@ export function WorldMap() {
   const resources = useGameStore((s) => s.gameState?.resources);
   const selectedAgentId = useGameStore((s) => s.selectedAgentId);
   const selectAgent = useGameStore((s) => s.selectAgent);
+  const bumpTicks = useBumpTicks();
 
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -204,7 +207,7 @@ export function WorldMap() {
 
   if (!agents || !resources) {
     return (
-      <div className="flex h-full w-full items-center justify-center text-zinc-500">
+      <div className="game-backdrop flex h-full w-full items-center justify-center font-semibold text-slate-400">
         Map not loaded…
       </div>
     );
@@ -215,7 +218,7 @@ export function WorldMap() {
   return (
     <div
       ref={viewportRef}
-      className="relative h-full w-full cursor-grab select-none overflow-hidden bg-[var(--bg)] active:cursor-grabbing"
+      className="game-backdrop relative h-full w-full cursor-grab select-none overflow-hidden active:cursor-grabbing"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -233,7 +236,7 @@ export function WorldMap() {
         }}
       >
         <div
-          className="blueprint-grid absolute inset-0 border border-zinc-800/60"
+          className="blueprint-grid absolute inset-0 rounded-3xl"
           style={{ backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px` }}
         />
 
@@ -257,19 +260,22 @@ export function WorldMap() {
               y={agent.position.y}
               wealth={agent.wealth}
               isSelected={agent.id === selectedAgentId}
+              bumpTick={bumpTicks.get(agent.id)}
               onSelect={selectAgent}
             />
           ),
         )}
+
+        <FloatingEventsLayer />
       </div>
 
       <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2">
-        <div className="pointer-events-none flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-400 backdrop-blur">
+        <div className="glass-panel pointer-events-none flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-slate-300">
           <Move className="h-3.5 w-3.5" />
           Drag to pan
         </div>
 
-        <div className="glass-panel flex items-center gap-1 rounded-lg p-1">
+        <div className="glass-panel flex items-center gap-1 rounded-full p-1 shadow-lg shadow-black/30">
           <button
             type="button"
             aria-label="Zoom out"
@@ -277,11 +283,11 @@ export function WorldMap() {
               e.stopPropagation();
               zoomTowardCenter(-1);
             }}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-zinc-300 transition-colors duration-200 hover:bg-zinc-800 hover:text-white"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-slate-300 transition duration-200 hover:bg-white/10 hover:text-white active:scale-90"
           >
             <Minus className="h-4 w-4" />
           </button>
-          <span className="min-w-12 text-center font-mono text-xs text-zinc-400 tabular-nums">
+          <span className="min-w-12 text-center text-xs font-bold text-slate-300 tabular-nums">
             {zoomPercent}%
           </span>
           <button
@@ -291,7 +297,7 @@ export function WorldMap() {
               e.stopPropagation();
               zoomTowardCenter(1);
             }}
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-zinc-300 transition-colors duration-200 hover:bg-zinc-800 hover:text-white"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-slate-300 transition duration-200 hover:bg-white/10 hover:text-white active:scale-90"
           >
             <Plus className="h-4 w-4" />
           </button>
