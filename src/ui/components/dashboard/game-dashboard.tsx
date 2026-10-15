@@ -12,9 +12,7 @@ export default function GameDashboard() {
 
   const hasGame = useGameStore((s) => s.gameState !== null);
 
-  if (!hasGame) {
-    return <WorldSelector />;
-  }
+  if (!hasGame) return <WorldSelector />;
 
   return (
     <div className="game-backdrop relative h-screen w-screen overflow-hidden font-sans text-slate-100">
