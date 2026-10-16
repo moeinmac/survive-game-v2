@@ -48,6 +48,15 @@ export interface Dictionary {
     chapterOf: (current: number, total: number) => string;
     chapterAria: (index: number) => string;
   };
+  hype: {
+    kicker: string;
+    line1: string;
+    line2: string;
+    cta: string;
+  };
+  creating: {
+    status: string;
+  };
   environment: {
     kicker: string;
     title: string;

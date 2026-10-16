@@ -1,16 +1,23 @@
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import type { AgentType } from "./core/types";
 import { useGameStore } from "./store/useGameStore";
+import { AudioEngine } from "./ui/audio/AudioEngine";
+import { syncBgm } from "./ui/audio/useAudioStore";
 import GameDashboard from "./ui/components/dashboard/game-dashboard";
 import { LandingPage } from "./ui/components/landing/landing-page";
 import { ArchetypeStep } from "./ui/components/onboarding/archetype-step";
 import { EnvironmentStep } from "./ui/components/onboarding/environment-step";
+import { HypeScreen } from "./ui/components/onboarding/hype-screen";
 import { OnboardingGate, OnboardingShell } from "./ui/components/onboarding/onboarding-shell";
+import { WorldCreationLoader } from "./ui/components/onboarding/world-creation-loader";
 import { WorldSelector } from "./ui/components/world-selector/world-selector";
 import { ARCHETYPES } from "./ui/data/archetypes";
 import { readOnboardingIndex, useOnboardingProgress, OnboardingProgressProvider } from "./ui/hooks/useOnboardingProgress";
 import {
+  CREATING_PATH,
   ENVIRONMENT_STEP_ID,
+  HYPE_PATH,
+  HYPE_STEP_ID,
   JOURNEY,
   journeyIndexForId,
 } from "./ui/onboarding/steps";
@@ -39,9 +46,13 @@ function HeroRoute() {
       showContinue={savedIndex > 0}
       onStart={() => {
         reach(environmentIndex);
+        syncBgm(JOURNEY[environmentIndex].path);
         navigate(JOURNEY[environmentIndex].path, { replace: !reviewing });
       }}
-      onContinue={() => navigate(JOURNEY[savedIndex].path)}
+      onContinue={() => {
+        syncBgm(JOURNEY[savedIndex].path);
+        navigate(JOURNEY[savedIndex].path);
+      }}
     />
   );
 }
@@ -69,6 +80,14 @@ function WorldRoute() {
   );
 }
 
+function HypeRoute() {
+  return (
+    <OnboardingGate index={journeyIndexForId(HYPE_STEP_ID)}>
+      <HypeScreen />
+    </OnboardingGate>
+  );
+}
+
 function PlayRoute() {
   const hasGame = useGameStore((state) => state.gameState !== null);
   if (!hasGame) return <Navigate to="/world-selection" replace />;
@@ -78,6 +97,7 @@ function PlayRoute() {
 function App() {
   return (
     <OnboardingProgressProvider>
+      <AudioEngine />
       <Routes>
         <Route path="/" element={<HeroRoute />} />
         <Route element={<OnboardingShell />}>
@@ -91,7 +111,9 @@ function App() {
           />
           <Route path="/onboarding/archetypes/:id" element={<ArchetypeRoute />} />
         </Route>
+        <Route path={HYPE_PATH} element={<HypeRoute />} />
         <Route path="/world-selection" element={<WorldRoute />} />
+        <Route path={CREATING_PATH} element={<WorldCreationLoader />} />
         <Route path="/play" element={<PlayRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

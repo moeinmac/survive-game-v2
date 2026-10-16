@@ -2,13 +2,13 @@ import { useRef, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useOutlet } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCopy, useLangStore } from "../../../i18n/useLangStore";
+import { syncBgm } from "../../audio/useAudioStore";
 import { LanguageSwitch } from "../language-switch";
 import { readOnboardingIndex, useOnboardingProgress } from "../../hooks/useOnboardingProgress";
 import {
   HERO_STEP_ID,
   JOURNEY,
   NARRATIVE_CHAPTER_COUNT,
-  WORLD_STEP_ID,
   journeyIndexForPath,
 } from "../../onboarding/steps";
 
@@ -37,11 +37,11 @@ export function OnboardingShell() {
   const inNarrative = index > 0 && index < NARRATIVE_CHAPTER_COUNT;
   const previous = index > 0 ? JOURNEY[index - 1] : null;
   const next = index >= 0 && index < JOURNEY.length - 1 ? JOURNEY[index + 1] : null;
-  const nextLabel = next?.id === WORLD_STEP_ID ? copy.onboarding.chooseWorld : copy.onboarding.next;
   const slideAxis = lang === "fa" ? -1 : 1;
 
   const goPrevious = () => {
     if (!previous) return;
+    syncBgm(previous.path);
     if (previous.id === HERO_STEP_ID) {
       navigate("/", { state: { review: true } });
       return;
@@ -52,12 +52,14 @@ export function OnboardingShell() {
   const goNext = () => {
     if (!next) return;
     reach(index + 1);
+    syncBgm(next.path);
     navigate(next.path);
   };
 
   const jumpTo = (stepIndex: number) => {
     if (stepIndex > furthestIndex || stepIndex === index) return;
     const step = JOURNEY[stepIndex];
+    syncBgm(step.path);
     if (step.id === HERO_STEP_ID) {
       navigate("/", { state: { review: true } });
       return;
@@ -77,6 +79,7 @@ export function OnboardingShell() {
           <Link
             to="/"
             state={{ review: true }}
+            onClick={() => syncBgm("/")}
             className="shrink-0 cursor-pointer font-display text-sm whitespace-nowrap text-zinc-100 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 sm:text-base"
           >
             {copy.brand}
@@ -160,7 +163,7 @@ export function OnboardingShell() {
                 onClick={goNext}
                 className="cursor-pointer rounded-full bg-[#CA8A04] px-6 py-3 text-sm font-semibold tracking-wide text-[#0C0A09] shadow-[0_0_32px_rgba(202,138,4,0.45)] transition-colors duration-200 hover:bg-[#EAB308] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CA8A04]"
               >
-                {nextLabel}
+                {copy.onboarding.next}
               </button>
             </div>
           </div>

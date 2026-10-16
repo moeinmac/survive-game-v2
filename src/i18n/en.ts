@@ -20,6 +20,15 @@ export const en: Dictionary = {
     chapterOf: (current, total) => `Chapter ${current} of ${total}`,
     chapterAria: (index) => `Chapter ${index}`,
   },
+  hype: {
+    kicker: "Before the door",
+    line1: "Are you ready to enter the Mirror?",
+    line2: "In a world where resources run out and trust is only an illusion, which group do you think will last to the end?",
+    cta: "Choose World",
+  },
+  creating: {
+    status: "Building the world",
+  },
   environment: {
     kicker: "The weather of this place",
     title: "Before you meet anyone",

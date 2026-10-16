@@ -21,6 +21,8 @@ import {
   type AgentCounts,
 } from "../../../store/useGameStore";
 import { useCopy } from "../../../i18n/useLangStore";
+import { useAudioStore } from "../../audio/useAudioStore";
+import { CREATING_PATH } from "../../onboarding/steps";
 import { LanguageSwitch } from "../language-switch";
 import { AGENT_THEME } from "../../constants/theme";
 import {
@@ -61,7 +63,8 @@ export interface WorldSelectorProps {
 
 export function WorldSelector({ onInitialize }: WorldSelectorProps) {
   const initGame = useGameStore((state) => state.initGame);
-  const togglePlay = useGameStore((state) => state.togglePlay);
+  const cutAll = useAudioStore((state) => state.cutAll);
+  const playImpact = useAudioStore((state) => state.playImpact);
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
   const copy = useCopy();
@@ -69,6 +72,7 @@ export function WorldSelector({ onInitialize }: WorldSelectorProps) {
   const [selectedId, setSelectedId] = useState<WorldChoiceId>("gotham");
   const [population, setPopulation] = useState(POPULATION_DEFAULT);
   const [customCounts, setCustomCounts] = useState<AgentCounts>(defaultCustomCounts);
+  const [handingOff, setHandingOff] = useState(false);
   const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const isCustom = selectedId === CUSTOM_WORLD_ID;
@@ -82,14 +86,16 @@ export function WorldSelector({ onInitialize }: WorldSelectorProps) {
   const canStart = populationTotal > 0;
 
   const startWorld = () => {
-    if (!canStart) return;
+    if (!canStart || handingOff) return;
     if (onInitialize) {
       onInitialize(counts, selected, populationTotal);
       return;
     }
+    setHandingOff(true);
+    cutAll();
+    playImpact();
     initGame(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, counts);
-    togglePlay();
-    navigate("/play");
+    navigate(CREATING_PATH);
   };
 
   const moveSelection = (fromIndex: number, direction: 1 | -1) => {
@@ -233,7 +239,7 @@ export function WorldSelector({ onInitialize }: WorldSelectorProps) {
           <button
             type="button"
             onClick={startWorld}
-            disabled={!canStart}
+            disabled={!canStart || handingOff}
             className="inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-sm font-extrabold tracking-wide text-zinc-950 transition duration-200 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 disabled:active:scale-100 md:w-auto"
             style={{
               backgroundColor: selected.accent,
