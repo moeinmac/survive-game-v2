@@ -24,7 +24,7 @@ Then open the URL Vite prints (usually `http://localhost:5173`).
 | `pnpm preview` | Serve the production build |
 | `pnpm lint` | Run ESLint |
 
-Your place in the exhibition is saved in the browser. Leave halfway through and the landing page offers **Continue**.
+Your place in the exhibition is saved in the browser. The landing page always stays put. **Start Journey** begins again at the first chapter. Once you have reached the hype screen, **Continue** opens that screen directly.
 
 ## A session
 

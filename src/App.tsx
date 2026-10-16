@@ -1,5 +1,5 @@
 import { useLayoutEffect } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import type { AgentType } from "./core/types";
 import { useGameStore } from "./store/useGameStore";
 import { AudioEngine } from "./ui/audio/AudioEngine";
@@ -24,24 +24,13 @@ import {
   journeyIndexForId,
 } from "./ui/onboarding/steps";
 
-function isReview(state: unknown): boolean {
-  return Boolean(
-    state && typeof state === "object" && "review" in state && (state as { review?: boolean }).review,
-  );
-}
-
 function HeroRoute() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { furthestIndex, reach } = useOnboardingProgress();
   const savedIndex = Math.max(furthestIndex, readOnboardingIndex());
-  const reviewing = isReview(location.state);
-
-  if (!reviewing && savedIndex > 0) {
-    return <Navigate to={JOURNEY[savedIndex].path} replace />;
-  }
-
   const environmentIndex = journeyIndexForId(ENVIRONMENT_STEP_ID);
+  const hypeIndex = journeyIndexForId(HYPE_STEP_ID);
+  const continueIndex = savedIndex >= hypeIndex ? hypeIndex : savedIndex;
 
   return (
     <LandingPage
@@ -49,11 +38,11 @@ function HeroRoute() {
       onStart={() => {
         reach(environmentIndex);
         syncBgm(JOURNEY[environmentIndex].path);
-        navigate(JOURNEY[environmentIndex].path, { replace: !reviewing });
+        navigate(JOURNEY[environmentIndex].path);
       }}
       onContinue={() => {
-        syncBgm(JOURNEY[savedIndex].path);
-        navigate(JOURNEY[savedIndex].path);
+        syncBgm(JOURNEY[continueIndex].path);
+        navigate(JOURNEY[continueIndex].path);
       }}
     />
   );
