@@ -19,10 +19,17 @@ function readStoredLang(): Lang {
   }
 }
 
+function directionFor(lang: Lang): "rtl" | "ltr" {
+  if (lang !== "fa") return "ltr";
+  // The play board is laid out left-to-right. Persian only changes the labels.
+  if (window.location.pathname === "/play") return "ltr";
+  return "rtl";
+}
+
 export function applyLang(lang: Lang): void {
   const root = document.documentElement;
   root.lang = lang;
-  root.dir = lang === "fa" ? "rtl" : "ltr";
+  root.dir = directionFor(lang);
 }
 
 interface LangState {

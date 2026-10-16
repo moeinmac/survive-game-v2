@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import type { AgentType } from "./core/types";
 import { useGameStore } from "./store/useGameStore";
@@ -12,6 +13,7 @@ import { OnboardingGate, OnboardingShell } from "./ui/components/onboarding/onbo
 import { WorldCreationLoader } from "./ui/components/onboarding/world-creation-loader";
 import { WorldSelector } from "./ui/components/world-selector/world-selector";
 import { ARCHETYPES } from "./ui/data/archetypes";
+import { applyLang, useLangStore } from "./i18n/useLangStore";
 import { readOnboardingIndex, useOnboardingProgress, OnboardingProgressProvider } from "./ui/hooks/useOnboardingProgress";
 import {
   CREATING_PATH,
@@ -90,6 +92,12 @@ function HypeRoute() {
 
 function PlayRoute() {
   const hasGame = useGameStore((state) => state.gameState !== null);
+
+  useLayoutEffect(() => {
+    applyLang(useLangStore.getState().lang);
+    return () => applyLang(useLangStore.getState().lang);
+  }, []);
+
   if (!hasGame) return <Navigate to="/world-selection" replace />;
   return <GameDashboard />;
 }

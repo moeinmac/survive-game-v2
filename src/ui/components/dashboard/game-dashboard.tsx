@@ -15,7 +15,7 @@ export default function GameDashboard() {
   if (!hasGame) return <Navigate to="/world-selection" replace />;
 
   return (
-    <div className="game-backdrop relative h-screen w-screen overflow-hidden font-sans text-slate-100">
+    <div dir="ltr" className="game-backdrop relative h-screen w-screen overflow-hidden font-sans text-slate-100">
       <WorldMap />
       <GameHud />
       <SettingsPanel />
