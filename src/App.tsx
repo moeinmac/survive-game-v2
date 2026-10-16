@@ -1,13 +1,102 @@
-import { useState } from "react";
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
+import type { AgentType } from "./core/types";
+import { useGameStore } from "./store/useGameStore";
 import GameDashboard from "./ui/components/dashboard/game-dashboard";
 import { LandingPage } from "./ui/components/landing/landing-page";
+import { ArchetypeStep } from "./ui/components/onboarding/archetype-step";
+import { EnvironmentStep } from "./ui/components/onboarding/environment-step";
+import { OnboardingGate, OnboardingShell } from "./ui/components/onboarding/onboarding-shell";
+import { WorldSelector } from "./ui/components/world-selector/world-selector";
+import { ARCHETYPES } from "./ui/data/archetypes";
+import { readOnboardingIndex, useOnboardingProgress, OnboardingProgressProvider } from "./ui/hooks/useOnboardingProgress";
+import {
+  ENVIRONMENT_STEP_ID,
+  JOURNEY,
+  journeyIndexForId,
+} from "./ui/onboarding/steps";
+
+function isReview(state: unknown): boolean {
+  return Boolean(
+    state && typeof state === "object" && "review" in state && (state as { review?: boolean }).review,
+  );
+}
+
+function HeroRoute() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { furthestIndex, reach } = useOnboardingProgress();
+  const savedIndex = Math.max(furthestIndex, readOnboardingIndex());
+  const reviewing = isReview(location.state);
+
+  if (!reviewing && savedIndex > 0) {
+    return <Navigate to={JOURNEY[savedIndex].path} replace />;
+  }
+
+  const environmentIndex = journeyIndexForId(ENVIRONMENT_STEP_ID);
+
+  return (
+    <LandingPage
+      showContinue={savedIndex > 0}
+      onStart={() => {
+        reach(environmentIndex);
+        navigate(JOURNEY[environmentIndex].path, { replace: !reviewing });
+      }}
+      onContinue={() => navigate(JOURNEY[savedIndex].path)}
+    />
+  );
+}
+
+function ArchetypeRoute() {
+  const { id = "" } = useParams();
+  const { furthestIndex } = useOnboardingProgress();
+  const profile = ARCHETYPES.find((entry) => entry.id === id);
+  if (!profile) {
+    return <Navigate to={JOURNEY[furthestIndex].path} replace />;
+  }
+
+  return (
+    <OnboardingGate index={journeyIndexForId(profile.id)}>
+      <ArchetypeStep agentId={profile.id as AgentType} />
+    </OnboardingGate>
+  );
+}
+
+function WorldRoute() {
+  return (
+    <OnboardingGate index={journeyIndexForId("world")}>
+      <WorldSelector />
+    </OnboardingGate>
+  );
+}
+
+function PlayRoute() {
+  const hasGame = useGameStore((state) => state.gameState !== null);
+  if (!hasGame) return <Navigate to="/world-selection" replace />;
+  return <GameDashboard />;
+}
 
 function App() {
-  const [entered, setEntered] = useState(false);
-
-  if (!entered) return <LandingPage onEnter={() => setEntered(true)} />;
-
-  return <GameDashboard />;
+  return (
+    <OnboardingProgressProvider>
+      <Routes>
+        <Route path="/" element={<HeroRoute />} />
+        <Route element={<OnboardingShell />}>
+          <Route
+            path="/onboarding/environment"
+            element={
+              <OnboardingGate index={journeyIndexForId(ENVIRONMENT_STEP_ID)}>
+                <EnvironmentStep />
+              </OnboardingGate>
+            }
+          />
+          <Route path="/onboarding/archetypes/:id" element={<ArchetypeRoute />} />
+        </Route>
+        <Route path="/world-selection" element={<WorldRoute />} />
+        <Route path="/play" element={<PlayRoute />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </OnboardingProgressProvider>
+  );
 }
 
 export default App;

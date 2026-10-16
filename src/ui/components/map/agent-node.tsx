@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { AgentType } from "../../../core/types";
-import { AGENT_THEME, CELL_SIZE } from "../../constants/theme";
+import { useCopy } from "../../../i18n/useLangStore";
+import { CELL_SIZE } from "../../constants/theme";
 import { AgentAvatar } from "./agent-avatar";
 
 interface AgentNodeProps {
@@ -32,7 +33,7 @@ export const AgentNode = memo(function AgentNode({
   bumpTick,
   onSelect,
 }: AgentNodeProps) {
-  const theme = AGENT_THEME[type];
+  const label = useCopy().archetypes[type].label;
   const px = x * CELL_SIZE;
   const py = y * CELL_SIZE;
   const wealthPercent = Math.min(100, Math.max(10, (wealth / 30) * 100));
@@ -42,7 +43,7 @@ export const AgentNode = memo(function AgentNode({
     <div
       role="button"
       tabIndex={0}
-      aria-label={theme.label}
+      aria-label={label}
       onClick={(e) => {
         e.stopPropagation();
         onSelect(id);

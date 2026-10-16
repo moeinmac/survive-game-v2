@@ -8,15 +8,24 @@ export const POPULATION_DEFAULT = 300;
 export const POPULATION_STEP = 10;
 
 export type WorldPresetId = "gotham" | "cutthroat" | "welfare" | "class-war";
+export const CUSTOM_WORLD_ID = "custom" as const;
+export type WorldChoiceId = WorldPresetId | typeof CUSTOM_WORLD_ID;
+
+export interface WorldChoice {
+  id: WorldChoiceId;
+  accent: string;
+}
+
+export const CUSTOM_WORLD: WorldChoice = {
+  id: CUSTOM_WORLD_ID,
+  accent: "#C4B5FD",
+};
 
 /** Percentage share of each agent type. Values are weights and should sum to 100. */
 export type PopulationShare = Record<AgentType, number>;
 
 export interface WorldPreset {
   id: WorldPresetId;
-  name: string;
-  epithet: string;
-  description: string;
   /** Card glow and primary action color. */
   accent: string;
   distribution: PopulationShare;
@@ -25,10 +34,6 @@ export interface WorldPreset {
 export const WORLD_PRESETS: readonly WorldPreset[] = [
   {
     id: "gotham",
-    name: "Gotham City",
-    epithet: "Social Collapse",
-    description:
-      "A dying city overrun by crime and corruption. The working class is nearly extinct, while the elites hide behind high walls.",
     accent: "#FB7185",
     distribution: {
       ROBBER_OPPORTUNIST: 40,
@@ -41,10 +46,6 @@ export const WORLD_PRESETS: readonly WorldPreset[] = [
   },
   {
     id: "cutthroat",
-    name: "Cutthroat Capitalism",
-    epithet: "Ruthless Competition",
-    description:
-      "A cold, hyper-efficient market. Everyone calculates ROI. Trust is low, but the economy thrives on ruthless competition.",
     accent: "#22D3EE",
     distribution: {
       OPTIMIZER_DETECTIVE: 40,
@@ -57,10 +58,6 @@ export const WORLD_PRESETS: readonly WorldPreset[] = [
   },
   {
     id: "welfare",
-    name: "The Welfare State",
-    epithet: "High Trust",
-    description:
-      "A highly trusting, prosperous society. However, this naive optimism makes it a perfect breeding ground for a few hidden parasites.",
     accent: "#34D399",
     distribution: {
       HARDWORKER_COPYCAT: 45,
@@ -73,10 +70,6 @@ export const WORLD_PRESETS: readonly WorldPreset[] = [
   },
   {
     id: "class-war",
-    name: "Class War",
-    epithet: "Polarized Economy",
-    description:
-      "A heavily polarized economy. The masses toil relentlessly while a massive aristocratic class hoards the wealth, sparking constant rebellions.",
     accent: "#FBBF24",
     distribution: {
       HARDWORKER_COPYCAT: 50,
@@ -92,6 +85,56 @@ export const WORLD_PRESETS: readonly WorldPreset[] = [
 export interface RankedShare {
   type: AgentType;
   percent: number;
+}
+
+export interface CountMixEntry {
+  type: AgentType;
+  count: number;
+  /** Share of the current total, from 0 to 100. */
+  percent: number;
+}
+
+export function sumAgentCounts(counts: AgentCounts): number {
+  return AGENT_TYPES.reduce((sum, type) => sum + Math.max(0, Math.floor(counts[type] ?? 0)), 0);
+}
+
+/** Even split of the default population. Leftover heads go to the earliest types. */
+export function defaultCustomCounts(): AgentCounts {
+  const each = Math.floor(POPULATION_DEFAULT / AGENT_TYPES.length);
+  const counts = Object.fromEntries(AGENT_TYPES.map((type) => [type, each])) as AgentCounts;
+  let leftover = POPULATION_DEFAULT - each * AGENT_TYPES.length;
+  for (const type of AGENT_TYPES) {
+    if (leftover <= 0) break;
+    counts[type] += 1;
+    leftover -= 1;
+  }
+  return counts;
+}
+
+export function rankedCountMix(counts: AgentCounts): CountMixEntry[] {
+  const total = sumAgentCounts(counts);
+  return AGENT_TYPES.map((type) => {
+    const count = Math.max(0, Math.floor(counts[type] ?? 0));
+    return {
+      type,
+      count,
+      percent: total === 0 ? 0 : (count / total) * 100,
+    };
+  })
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
+}
+
+/** Keep every type at zero or above, and the whole society inside the population cap. */
+export function withAgentCount(counts: AgentCounts, type: AgentType, raw: number): AgentCounts {
+  const current = Math.max(0, Math.floor(counts[type] ?? 0));
+  const others = sumAgentCounts(counts) - current;
+  const room = Math.max(0, POPULATION_MAX - others);
+  const requested = Number.isFinite(raw) ? Math.floor(raw) : 0;
+  return {
+    ...counts,
+    [type]: Math.max(0, Math.min(room, requested)),
+  };
 }
 
 export function rankedShares(shares: PopulationShare): RankedShare[] {

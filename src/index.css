@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Vazirmatn:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -21,6 +21,27 @@
   --glass: rgba(30, 41, 59, 0.7);
   --grid-line: rgba(255, 255, 255, 0.025);
   --text: #f1f5f9;
+}
+
+html[lang="fa"] {
+  --font-sans: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+}
+
+html[lang="fa"] .font-display {
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.kicker {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+html[lang="fa"] .kicker {
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 html,

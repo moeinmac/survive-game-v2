@@ -28,7 +28,7 @@ export const ResourceNode = memo(function ResourceNode({
     >
       <div className="cookie-bob relative flex h-6 w-6 items-center justify-center rounded-full bg-amber-300 shadow-[0_3px_0_rgba(146,64,14,0.55)]">
         <Cookie className="h-3.5 w-3.5 text-amber-800" strokeWidth={2.5} />
-        <span className="absolute -right-1.5 -bottom-1 rounded-full bg-amber-900 px-1 text-[9px] leading-[13px] font-extrabold text-amber-100">
+        <span className="absolute -end-1.5 -bottom-1 rounded-full bg-amber-900 px-1 text-[9px] leading-[13px] font-extrabold text-amber-100">
           {value}
         </span>
       </div>

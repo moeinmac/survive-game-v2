@@ -1,8 +1,12 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Building2,
   HeartHandshake,
+  Minus,
   Play,
+  Plus,
+  SlidersHorizontal,
   Swords,
   TrendingUp,
   type LucideIcon,
@@ -16,64 +20,86 @@ import {
   useGameStore,
   type AgentCounts,
 } from "../../../store/useGameStore";
+import { useCopy } from "../../../i18n/useLangStore";
+import { LanguageSwitch } from "../language-switch";
 import { AGENT_THEME } from "../../constants/theme";
 import {
   allocatePopulation,
+  CUSTOM_WORLD,
+  CUSTOM_WORLD_ID,
+  defaultCustomCounts,
   POPULATION_DEFAULT,
   POPULATION_MAX,
   POPULATION_MIN,
   POPULATION_STEP,
+  rankedCountMix,
   rankedShares,
+  sumAgentCounts,
+  withAgentCount,
   WORLD_PRESETS,
+  type WorldChoice,
+  type WorldChoiceId,
   type WorldPreset,
-  type WorldPresetId,
 } from "../../data/world-presets";
 
-const AGENT_SHORT_LABEL: Record<AgentType, string> = {
-  HARDWORKER_COPYCAT: "HardWorker",
-  CONTENTED_ALTRUIST: "Contented",
-  TALENTED_GRUDGER: "Grudger",
-  OPTIMIZER_DETECTIVE: "Optimizer",
-  ARISTOCRAT_VIP: "VIP",
-  ROBBER_OPPORTUNIST: "Robber",
-};
-
-const WORLD_ICONS: Record<WorldPresetId, LucideIcon> = {
+const WORLD_ICONS: Record<WorldChoiceId, LucideIcon> = {
   gotham: Building2,
   cutthroat: TrendingUp,
   welfare: HeartHandshake,
   "class-war": Swords,
+  custom: SlidersHorizontal,
 };
 
+const CHOICE_IDS: readonly WorldChoiceId[] = [
+  ...WORLD_PRESETS.map((preset) => preset.id),
+  CUSTOM_WORLD_ID,
+];
+
 export interface WorldSelectorProps {
-  onInitialize?: (counts: AgentCounts, preset: WorldPreset, population: number) => void;
+  onInitialize?: (counts: AgentCounts, world: WorldChoice, population: number) => void;
 }
 
 export function WorldSelector({ onInitialize }: WorldSelectorProps) {
   const initGame = useGameStore((state) => state.initGame);
   const togglePlay = useGameStore((state) => state.togglePlay);
+  const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
+  const copy = useCopy();
 
-  const [selectedId, setSelectedId] = useState<WorldPresetId>("gotham");
+  const [selectedId, setSelectedId] = useState<WorldChoiceId>("gotham");
   const [population, setPopulation] = useState(POPULATION_DEFAULT);
+  const [customCounts, setCustomCounts] = useState<AgentCounts>(defaultCustomCounts);
   const cardRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  const selected = WORLD_PRESETS.find((preset) => preset.id === selectedId) ?? WORLD_PRESETS[0];
-  const counts = allocatePopulation(selected.distribution, population);
+  const isCustom = selectedId === CUSTOM_WORLD_ID;
+  const selectedPreset =
+    WORLD_PRESETS.find((preset) => preset.id === selectedId) ?? WORLD_PRESETS[0];
+  const selected: WorldChoice = isCustom ? CUSTOM_WORLD : selectedPreset;
+  const worldText = copy.worlds.choices[selected.id];
+  const customTotal = sumAgentCounts(customCounts);
+  const counts = isCustom ? customCounts : allocatePopulation(selectedPreset.distribution, population);
+  const populationTotal = isCustom ? customTotal : population;
+  const canStart = populationTotal > 0;
 
   const startWorld = () => {
+    if (!canStart) return;
     if (onInitialize) {
-      onInitialize(counts, selected, population);
+      onInitialize(counts, selected, populationTotal);
       return;
     }
     initGame(DEFAULT_BOARD_WIDTH, DEFAULT_BOARD_HEIGHT, counts);
     togglePlay();
+    navigate("/play");
   };
 
   const moveSelection = (fromIndex: number, direction: 1 | -1) => {
-    const next = (fromIndex + direction + WORLD_PRESETS.length) % WORLD_PRESETS.length;
-    setSelectedId(WORLD_PRESETS[next].id);
+    const next = (fromIndex + direction + CHOICE_IDS.length) % CHOICE_IDS.length;
+    setSelectedId(CHOICE_IDS[next]);
     cardRefs.current[next]?.focus();
+  };
+
+  const setCustomCount = (type: AgentType, raw: number) => {
+    setCustomCounts((current) => withAgentCount(current, type, raw));
   };
 
   const populationRatio = (population - POPULATION_MIN) / (POPULATION_MAX - POPULATION_MIN);
@@ -101,90 +127,121 @@ export function WorldSelector({ onInitialize }: WorldSelectorProps) {
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
           <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-xl">
-              <p className="font-mono text-[11px] font-medium tracking-[0.28em] text-zinc-500 uppercase">
-                New simulation
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="kicker font-mono text-[11px] font-medium text-zinc-500">
+                  {copy.worlds.kicker}
+                </p>
+                <LanguageSwitch />
+              </div>
               <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-zinc-50 sm:text-5xl">
-                Choose a world
+                {copy.worlds.title}
               </h1>
-              <p className="mt-3 text-base leading-relaxed text-zinc-300">
-                Four opening societies. The mix of strategies decides who eats, who hoards, and who gets robbed.
-              </p>
+              <p className="mt-3 text-base leading-relaxed text-zinc-300">{copy.worlds.lead}</p>
             </div>
             <AgentLegend />
           </header>
 
           <div
             role="radiogroup"
-            aria-label="World presets"
+            aria-label={copy.worlds.presetsAria}
             className="mt-6 grid grid-cols-1 gap-4 pb-3 md:grid-cols-2"
           >
             {WORLD_PRESETS.map((preset, index) => (
               <WorldCard
                 key={preset.id}
-                preset={preset}
+                world={preset}
                 index={index}
                 selected={preset.id === selected.id}
-                counts={allocatePopulation(preset.distribution, population)}
+                shares={presetShares(preset, population)}
                 reduceMotion={Boolean(reduceMotion)}
                 buttonRef={(node) => {
                   cardRefs.current[index] = node;
                 }}
-                onSelect={() => setSelectedId(preset.id)}
+                onSelect={() => {
+                  setSelectedId(preset.id);
+                  cardRefs.current[index]?.scrollIntoView({ block: "nearest" });
+                }}
                 onKeyNavigate={(direction) => moveSelection(index, direction)}
               />
             ))}
+            <WorldCard
+              world={CUSTOM_WORLD}
+              index={WORLD_PRESETS.length}
+              selected={isCustom}
+              shares={rankedCountMix(customCounts)}
+              wide
+              reduceMotion={Boolean(reduceMotion)}
+              buttonRef={(node) => {
+                cardRefs.current[WORLD_PRESETS.length] = node;
+              }}
+              onSelect={() => {
+                setSelectedId(CUSTOM_WORLD_ID);
+                cardRefs.current[WORLD_PRESETS.length]?.scrollIntoView({ block: "nearest" });
+              }}
+              onKeyNavigate={(direction) => moveSelection(WORLD_PRESETS.length, direction)}
+            />
           </div>
         </div>
       </div>
 
       <footer className="relative z-20 shrink-0 border-t border-white/10 bg-zinc-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:px-8">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between gap-3">
-              <label htmlFor="world-population" className="text-sm font-semibold text-zinc-100">
-                Total population
-              </label>
-              <p className="font-mono text-sm text-zinc-400" aria-live="polite">
-                <span className="text-2xl font-medium text-zinc-50 tabular-nums">{population}</span>
-                <span className="ml-2 hidden sm:inline">into {selected.name}</span>
-              </p>
-            </div>
-            <input
-              id="world-population"
-              type="range"
-              min={POPULATION_MIN}
-              max={POPULATION_MAX}
-              step={POPULATION_STEP}
-              value={population}
-              onChange={(event) => setPopulation(Number(event.target.value))}
-              aria-valuemin={POPULATION_MIN}
-              aria-valuemax={POPULATION_MAX}
-              aria-valuenow={population}
-              aria-label="Total population"
-              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-100 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-zinc-50 [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.55)] [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-zinc-50"
-              style={{
-                background: `linear-gradient(to right, ${selected.accent} 0%, ${selected.accent} ${populationRatio * 100}%, rgb(39 39 42) ${populationRatio * 100}%, rgb(39 39 42) 100%)`,
-              }}
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 md:flex-row md:items-end md:px-8">
+          {isCustom ? (
+            <CustomPopulation
+              counts={customCounts}
+              total={customTotal}
+              accent={selected.accent}
+              onChange={setCustomCount}
             />
-            <div className="mt-1.5 flex justify-between font-mono text-[11px] text-zinc-500">
-              <span>{POPULATION_MIN}</span>
-              <span className="sm:hidden">{selected.name}</span>
-              <span>{POPULATION_MAX}</span>
+          ) : (
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <label htmlFor="world-population" className="text-sm font-semibold text-zinc-100">
+                  {copy.worlds.totalPopulation}
+                </label>
+                <p className="font-mono text-sm text-zinc-400" aria-live="polite">
+                  <span className="text-2xl font-medium text-zinc-50 tabular-nums">{population}</span>
+                  <span className="ms-2 hidden sm:inline">{copy.worlds.intoWorld(worldText.name)}</span>
+                </p>
+              </div>
+              <input
+                id="world-population"
+                type="range"
+                min={POPULATION_MIN}
+                max={POPULATION_MAX}
+                step={POPULATION_STEP}
+                value={population}
+                onChange={(event) => setPopulation(Number(event.target.value))}
+                aria-valuemin={POPULATION_MIN}
+                aria-valuemax={POPULATION_MAX}
+                aria-valuenow={population}
+                aria-label={copy.worlds.totalPopulation}
+                dir="ltr"
+                className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-100 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-zinc-50 [&::-webkit-slider-thumb]:shadow-[0_0_12px_rgba(255,255,255,0.55)] [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-zinc-50"
+                style={{
+                  background: `linear-gradient(to right, ${selected.accent} 0%, ${selected.accent} ${populationRatio * 100}%, rgb(39 39 42) ${populationRatio * 100}%, rgb(39 39 42) 100%)`,
+                }}
+              />
+              <div className="mt-1.5 flex justify-between font-mono text-[11px] text-zinc-500">
+                <span>{POPULATION_MIN}</span>
+                <span className="sm:hidden">{worldText.name}</span>
+                <span>{POPULATION_MAX}</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             type="button"
             onClick={startWorld}
-            className="inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-sm font-extrabold tracking-wide text-zinc-950 transition duration-200 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 active:scale-[0.98] lg:w-auto"
+            disabled={!canStart}
+            className="inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-sm font-extrabold tracking-wide text-zinc-950 transition duration-200 hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:brightness-100 disabled:active:scale-100 md:w-auto"
             style={{
               backgroundColor: selected.accent,
-              boxShadow: `0 0 28px ${selected.accent}66`,
+              boxShadow: canStart ? `0 0 28px ${selected.accent}66` : undefined,
             }}
           >
             <Play className="h-4 w-4 fill-current" aria-hidden />
-            Initialize World
+            {copy.worlds.initialize}
           </button>
         </div>
       </footer>
@@ -193,8 +250,9 @@ export function WorldSelector({ onInitialize }: WorldSelectorProps) {
 }
 
 function AgentLegend() {
+  const copy = useCopy();
   return (
-    <ul className="flex max-w-md flex-wrap gap-2" aria-label="Agent types">
+    <ul className="flex max-w-md flex-wrap gap-2" aria-label={copy.worlds.agentTypes}>
       {AGENT_TYPES.map((type) => {
         const theme = AGENT_THEME[type];
         const Icon = theme.Icon;
@@ -204,7 +262,7 @@ function AgentLegend() {
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-semibold text-zinc-200"
           >
             <Icon className="h-3.5 w-3.5" style={{ color: theme.color }} aria-hidden />
-            {AGENT_SHORT_LABEL[type]}
+            {copy.archetypes[type].short}
           </li>
         );
       })}
@@ -212,28 +270,59 @@ function AgentLegend() {
   );
 }
 
+interface MixShare {
+  type: AgentType;
+  percent: number;
+  count: number;
+}
+
+function presetShares(preset: WorldPreset, population: number): MixShare[] {
+  const counts = allocatePopulation(preset.distribution, population);
+  return rankedShares(preset.distribution).map((share) => ({
+    type: share.type,
+    percent: share.percent,
+    count: counts[share.type],
+  }));
+}
+
+function formatPercent(percent: number): string {
+  const nearest = Math.round(percent);
+  if (Math.abs(percent - nearest) < 0.05) return `${nearest}`;
+  return percent.toFixed(1);
+}
+
 function WorldCard({
-  preset,
+  world,
   index,
   selected,
-  counts,
+  shares,
+  wide = false,
   reduceMotion,
   buttonRef,
   onSelect,
   onKeyNavigate,
 }: {
-  preset: WorldPreset;
+  world: WorldChoice;
   index: number;
   selected: boolean;
-  counts: AgentCounts;
+  shares: readonly MixShare[];
+  wide?: boolean;
   reduceMotion: boolean;
   buttonRef: (node: HTMLButtonElement | null) => void;
   onSelect: () => void;
   onKeyNavigate: (direction: 1 | -1) => void;
 }) {
-  const Icon = WORLD_ICONS[preset.id];
-  const shares = rankedShares(preset.distribution);
+  const copy = useCopy();
+  const text = copy.worlds.choices[world.id];
+  const Icon = WORLD_ICONS[world.id];
   const leader = shares[0];
+  const runnerUp = shares[1];
+  const uniqueLeader =
+    leader != null && (runnerUp == null || leader.percent - runnerUp.percent >= 0.5);
+  const balanced =
+    leader != null &&
+    shares.length > 1 &&
+    shares.every((share) => Math.abs(share.percent - leader.percent) < 0.5);
   const code = String(index + 1).padStart(2, "0");
 
   return (
@@ -256,14 +345,14 @@ function WorldCard({
       initial={reduceMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: "easeOut", delay: reduceMotion ? 0 : index * 0.05 }}
-      className={`group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border bg-zinc-900/55 p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl transition duration-200 hover:z-10 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 ${
-        selected ? "border-transparent" : "border-white/10 hover:border-white/25"
-      }`}
+      className={`group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border bg-zinc-900/55 p-4 text-start shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl transition duration-200 hover:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 ${
+        wide ? "md:col-span-2" : "hover:scale-105"
+      } ${selected ? "border-transparent" : "border-white/10 hover:border-white/25"}`}
       style={
         selected
           ? {
-              borderColor: preset.accent,
-              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px ${preset.accent}, 0 0 36px ${preset.accent}44`,
+              borderColor: world.accent,
+              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px ${world.accent}, 0 0 36px ${world.accent}44`,
             }
           : undefined
       }
@@ -272,40 +361,44 @@ function WorldCard({
         className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-80"
         aria-hidden
         style={{
-          background: `linear-gradient(180deg, ${preset.accent}33, transparent)`,
+          background: `linear-gradient(180deg, ${world.accent}33, transparent)`,
         }}
       />
 
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[11px] font-medium tracking-[0.22em] text-zinc-400 uppercase">
-            {code} · {preset.epithet}
+          <p className="kicker font-mono text-[11px] font-medium text-zinc-400">
+            {code} · {text.epithet}
           </p>
-          <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight text-zinc-50">{preset.name}</h2>
+          <h2 className="mt-1.5 text-2xl font-extrabold tracking-tight text-zinc-50">{text.name}</h2>
         </div>
         <span
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-zinc-950/50"
-          style={{ color: preset.accent }}
+          style={{ color: world.accent }}
         >
           <Icon className="h-5 w-5" aria-hidden />
         </span>
       </div>
 
-      <p className="relative mt-3 text-sm leading-relaxed text-zinc-300">{preset.description}</p>
+      <p className="relative mt-3 text-sm leading-relaxed text-zinc-300">{text.description}</p>
 
       <div className="relative mt-auto pt-4">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <p className="text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">
-            Population
+          <p className="kicker text-[10px] font-semibold text-zinc-500">
+            {copy.worlds.populationLabel}
           </p>
-          {leader ? (
+          {uniqueLeader && leader ? (
             <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-200">
               <span
                 className="h-1.5 w-1.5 rounded-full"
                 style={{ backgroundColor: AGENT_THEME[leader.type].color }}
                 aria-hidden
               />
-              Led by {AGENT_SHORT_LABEL[leader.type]}
+              {copy.worlds.ledBy(copy.archetypes[leader.type].short)}
+            </p>
+          ) : shares.length === 0 || balanced ? (
+            <p className="text-xs font-semibold text-zinc-400">
+              {shares.length === 0 ? copy.worlds.noAgentsYet : copy.worlds.balancedMix}
             </p>
           ) : null}
         </div>
@@ -313,9 +406,18 @@ function WorldCard({
         <div
           className="flex h-2.5 w-full overflow-hidden rounded-full bg-zinc-800"
           role="img"
-          aria-label={shares
-            .map((share) => `${AGENT_SHORT_LABEL[share.type]} ${share.percent}%`)
-            .join(", ")}
+          aria-label={
+            shares.length === 0
+              ? copy.worlds.noAgents
+              : copy.worlds.shareAria(
+                  shares
+                    .map(
+                      (share) =>
+                        `${copy.archetypes[share.type].short} ${formatPercent(share.percent)}%`,
+                    )
+                    .join(", "),
+                )
+          }
         >
           {shares.map((share) => (
             <div
@@ -325,7 +427,7 @@ function WorldCard({
                 width: `${share.percent}%`,
                 backgroundColor: AGENT_THEME[share.type].color,
               }}
-              title={`${AGENT_THEME[share.type].label}: ${share.percent}%`}
+              title={`${copy.archetypes[share.type].label}: ${formatPercent(share.percent)}%`}
             />
           ))}
         </div>
@@ -333,16 +435,16 @@ function WorldCard({
         <ul className="mt-3 flex flex-wrap gap-1.5">
           {shares.map((share) => {
             const theme = AGENT_THEME[share.type];
-            const Icon = theme.Icon;
+            const ShareIcon = theme.Icon;
             return (
               <li
                 key={share.type}
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-zinc-950/60 px-2 py-1 text-[11px] font-semibold text-zinc-200"
               >
-                <Icon className="h-3 w-3" style={{ color: theme.color }} aria-hidden />
-                <span>{AGENT_SHORT_LABEL[share.type]}</span>
+                <ShareIcon className="h-3 w-3" style={{ color: theme.color }} aria-hidden />
+                <span>{copy.archetypes[share.type].short}</span>
                 <span className="font-mono text-zinc-400 tabular-nums">
-                  {share.percent}% · {counts[share.type]}
+                  {formatPercent(share.percent)}% · {share.count}
                 </span>
               </li>
             );
@@ -350,5 +452,83 @@ function WorldCard({
         </ul>
       </div>
     </motion.button>
+  );
+}
+
+function CustomPopulation({
+  counts,
+  total,
+  accent,
+  onChange,
+}: {
+  counts: AgentCounts;
+  total: number;
+  accent: string;
+  onChange: (type: AgentType, value: number) => void;
+}) {
+  const atCap = total >= POPULATION_MAX;
+  const copy = useCopy();
+
+  return (
+    <div className="min-w-0 flex-1">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm font-semibold text-zinc-100">{copy.worlds.eachStrategy}</p>
+        <p className="font-mono text-sm text-zinc-400" aria-live="polite">
+          <span className="text-2xl font-medium text-zinc-50 tabular-nums">{total}</span>
+          <span className="ms-1.5 text-zinc-500">/ {POPULATION_MAX}</span>
+        </p>
+      </div>
+      <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {AGENT_TYPES.map((type) => {
+          const theme = AGENT_THEME[type];
+          const Icon = theme.Icon;
+          const count = counts[type] ?? 0;
+          const label = copy.archetypes[type].short;
+          return (
+            <li
+              key={type}
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-950/50 px-2 py-1.5"
+            >
+              <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: theme.color }} aria-hidden />
+              <span className="min-w-0 flex-1 truncate text-xs font-semibold text-zinc-200">{label}</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  aria-label={copy.worlds.removeOne(label)}
+                  disabled={count <= 0}
+                  onClick={() => onChange(type, count - 1)}
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg border border-white/10 text-zinc-200 transition duration-200 hover:border-white/25 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Minus className="h-3.5 w-3.5" aria-hidden />
+                </button>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={POPULATION_MAX}
+                  value={count}
+                  aria-label={copy.worlds.countOf(label)}
+                  onChange={(event) => {
+                    const parsed = Number.parseInt(event.target.value, 10);
+                    onChange(type, Number.isNaN(parsed) ? 0 : parsed);
+                  }}
+                  className="w-12 [appearance:textfield] rounded-lg border border-white/10 bg-zinc-950 px-1 py-1 text-center font-mono text-xs text-zinc-50 tabular-nums outline-none focus-visible:border-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  style={{ caretColor: accent }}
+                />
+                <button
+                  type="button"
+                  aria-label={copy.worlds.addOne(label)}
+                  disabled={atCap}
+                  onClick={() => onChange(type, count + 1)}
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg border border-white/10 text-zinc-200 transition duration-200 hover:border-white/25 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-100 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }

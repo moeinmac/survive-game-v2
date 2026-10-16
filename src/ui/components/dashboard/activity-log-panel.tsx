@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { GameEventKind } from "../../../core/types";
+import { useCopy } from "../../../i18n/useLangStore";
 import { useGameStore } from "../../../store/useGameStore";
 
 const KIND_STYLE: Record<GameEventKind, string> = {
@@ -15,40 +16,28 @@ const KIND_STYLE: Record<GameEventKind, string> = {
   OPTIMIZER_OVERLOAD: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
 };
 
-const KIND_LABEL: Record<GameEventKind, string> = {
-  COOKIE_SPAWN: "Cookie",
-  COOKIE_PICKUP: "Pickup",
-  DEATH: "Death",
-  ROBBERY_SUCCESS: "Robbery",
-  ROBBERY_FAIL: "Robbery failed",
-  COOPERATE: "Cooperate",
-  BETRAY: "Betray",
-  FIGHT: "Fight",
-  VIP_CLUB: "VIP club",
-  OPTIMIZER_OVERLOAD: "Overload",
-};
-
 export function ActivityLogPanel() {
   const open = useGameStore((s) => s.leftPanel === "log");
   const setLeftPanel = useGameStore((s) => s.setLeftPanel);
   const events = useGameStore((s) => s.gameState?.events ?? []);
+  const copy = useCopy();
 
   return (
     <aside
-      className={`absolute inset-y-0 left-0 z-50 flex w-[min(100vw,380px)] flex-col transition-transform duration-300 ease-out ${
-        open ? "translate-x-0" : "pointer-events-none -translate-x-full"
+      className={`absolute inset-y-0 start-0 z-50 flex w-[min(100vw,380px)] flex-col transition-transform duration-300 ease-out ${
+        open ? "translate-x-0" : "pointer-events-none ltr:-translate-x-full rtl:translate-x-full"
       }`}
       aria-hidden={!open}
     >
       <div className="glass-panel m-4 flex h-[calc(100%-2rem)] flex-col overflow-hidden rounded-2xl shadow-2xl shadow-black/50">
         <header className="flex items-center justify-between border-b border-zinc-800 px-4 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-100">Event log</h2>
-            <p className="mt-0.5 text-[11px] text-zinc-500">The society's brain, live</p>
+            <h2 className="text-sm font-semibold text-zinc-100">{copy.log.title}</h2>
+            <p className="mt-0.5 text-[11px] text-zinc-500">{copy.log.subtitle}</p>
           </div>
           <button
             type="button"
-            aria-label="Close"
+            aria-label={copy.log.close}
             onClick={() => setLeftPanel(null)}
             className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-zinc-800 hover:text-zinc-100"
           >
@@ -59,7 +48,7 @@ export function ActivityLogPanel() {
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {events.length === 0 ? (
             <p className="px-2 py-8 text-center text-sm text-zinc-500">
-              No events yet. Start the game.
+              {copy.log.empty}
             </p>
           ) : (
             <ul className="flex flex-col gap-2">
@@ -72,7 +61,7 @@ export function ActivityLogPanel() {
                     <span
                       className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${KIND_STYLE[event.kind]}`}
                     >
-                      {KIND_LABEL[event.kind]}
+                      {copy.log.kinds[event.kind]}
                     </span>
                     <span className="font-mono text-[10px] text-zinc-500">t{event.tick}</span>
                   </div>

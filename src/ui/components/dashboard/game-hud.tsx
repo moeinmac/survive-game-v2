@@ -1,6 +1,8 @@
 import { BarChart3, Pause, Play, Settings2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { useCopy } from "../../../i18n/useLangStore";
 import { useGameStore, type LeftPanel } from "../../../store/useGameStore";
+import { LanguageSwitch } from "../language-switch";
 import {
   seasonChipClass,
   seasonEmoji,
@@ -63,16 +65,17 @@ export function GameHud() {
   const isRunning = useGameStore((s) => s.isRunning);
   const leftPanel = useGameStore((s) => s.leftPanel);
   const togglePlay = useGameStore((s) => s.togglePlay);
+  const copy = useCopy();
 
   const trust = Math.min(100, Math.max(0, societalTrust));
 
   return (
     <div className="pointer-events-none absolute top-5 left-1/2 z-50 w-max max-w-[96vw] -translate-x-1/2">
-      <div className="glass-panel pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-[2rem] py-2 pr-2 pl-2 shadow-2xl shadow-black/40 sm:gap-3 sm:rounded-full">
+      <div className="glass-panel pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-[2rem] py-2 ps-2 pe-2 shadow-2xl shadow-black/40 sm:gap-3 sm:rounded-full">
         <button
           type="button"
           onClick={togglePlay}
-          aria-label={isRunning ? "Pause simulation" : "Start simulation"}
+          aria-label={isRunning ? copy.hud.pause : copy.hud.start}
           className={`flex h-12 w-12 cursor-pointer items-center justify-center rounded-full shadow-lg transition duration-200 hover:scale-105 active:scale-95 ${
             isRunning
               ? "bg-amber-300 text-amber-950 shadow-amber-500/20"
@@ -86,13 +89,13 @@ export function GameHud() {
           )}
         </button>
 
-        <StatChip emoji="⏱" label="Tick">
+        <StatChip emoji="⏱" label={copy.hud.tick}>
           {tick}
         </StatChip>
 
         <div
-          title="Societal trust"
-          className="flex items-center gap-2 rounded-full bg-white/5 py-1.5 pr-3 pl-2"
+          title={copy.hud.trust}
+          className="flex items-center gap-2 rounded-full bg-white/5 py-1.5 ps-2 pe-3"
         >
           <span className="text-lg leading-none" aria-hidden>
             {trustMood(trust)}
@@ -103,17 +106,17 @@ export function GameHud() {
               style={{ width: `${trust}%` }}
             />
           </div>
-          <span className="min-w-9 text-right text-sm font-extrabold text-slate-100 tabular-nums">
+          <span className="min-w-9 text-end text-sm font-extrabold text-slate-100 tabular-nums">
             {Math.round(trust)}%
           </span>
-          <span className="sr-only">Societal trust</span>
+          <span className="sr-only">{copy.hud.trust}</span>
         </div>
 
-        <StatChip emoji="👥" label="Population">
+        <StatChip emoji="👥" label={copy.hud.population}>
           {population}
         </StatChip>
 
-        <StatChip emoji="🍪" label="Cookies">
+        <StatChip emoji="🍪" label={copy.hud.cookies}>
           {cookieCount}
         </StatChip>
 
@@ -121,14 +124,15 @@ export function GameHud() {
           className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-extrabold tracking-wide ${seasonChipClass(season)}`}
         >
           <span aria-hidden>{seasonEmoji(season)}</span>
-          {season.charAt(0) + season.slice(1).toLowerCase()}
+          {copy.hud.seasons[season]}
         </span>
 
         <div className="flex items-center gap-1.5">
-          <PanelToggle panel="settings" active={leftPanel === "settings"} label="Settings">
+          <LanguageSwitch tone="glass" />
+          <PanelToggle panel="settings" active={leftPanel === "settings"} label={copy.hud.settings}>
             <Settings2 className="h-[18px] w-[18px]" />
           </PanelToggle>
-          <PanelToggle panel="analytics" active={leftPanel === "analytics"} label="Analytics">
+          <PanelToggle panel="analytics" active={leftPanel === "analytics"} label={copy.hud.analytics}>
             <BarChart3 className="h-[18px] w-[18px]" />
           </PanelToggle>
         </div>

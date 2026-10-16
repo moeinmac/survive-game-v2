@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 import type { EncounterAction, EncounterRecord } from "../../../core/types";
 import { useGameStore } from "../../../store/useGameStore";
+import { useCopy } from "../../../i18n/useLangStore";
 import { AGENT_THEME } from "../../constants/theme";
 
 function actionBadge(action: EncounterAction) {
@@ -15,6 +16,7 @@ function actionBadge(action: EncounterAction) {
 }
 
 function GossipRow({ record }: { record: EncounterRecord }) {
+  const copy = useCopy();
   const profitPositive = record.profit >= 0;
 
   return (
@@ -29,15 +31,15 @@ function GossipRow({ record }: { record: EncounterRecord }) {
         <span
           className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${actionBadge(record.myAction)}`}
         >
-          Me: {record.myAction}
+          {copy.inspect.me(copy.inspect.actions[record.myAction])}
         </span>
         <span
           className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${actionBadge(record.opponentAction)}`}
         >
-          Them: {record.opponentAction}
+          {copy.inspect.them(copy.inspect.actions[record.opponentAction])}
         </span>
         <span
-          className={`ml-auto font-mono text-xs font-bold tabular-nums ${
+          className={`ms-auto font-mono text-xs font-bold tabular-nums ${
             profitPositive ? "text-emerald-400" : "text-red-400"
           }`}
         >
@@ -52,7 +54,7 @@ function GossipRow({ record }: { record: EncounterRecord }) {
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-zinc-800/80 py-2 last:border-b-0">
-      <span className="text-xs tracking-wide text-zinc-400 uppercase">{label}</span>
+      <span className="kicker text-xs text-zinc-400">{label}</span>
       <span className="font-mono text-sm font-semibold text-zinc-100 tabular-nums">
         {value}
       </span>
@@ -93,11 +95,12 @@ export function InspectPanel() {
     ? agent.baseMetabolism * (1 + agent.burden)
     : 0;
   const gossip = agent?.recentGossip.slice(-5).reverse() ?? [];
+  const copy = useCopy();
 
   return (
     <aside
-      className={`absolute inset-y-0 right-0 z-50 flex w-[min(100vw,360px)] flex-col transition-transform duration-300 ease-out ${
-        isOpen ? "translate-x-0" : "pointer-events-none translate-x-full"
+      className={`absolute inset-y-0 end-0 z-50 flex w-[min(100vw,360px)] flex-col transition-transform duration-300 ease-out ${
+        isOpen ? "translate-x-0" : "pointer-events-none ltr:translate-x-full rtl:-translate-x-full"
       }`}
       aria-hidden={!isOpen}
     >
@@ -113,7 +116,7 @@ export function InspectPanel() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-zinc-100">
-                  {theme.label}
+                  {copy.archetypes[agent.type].label}
                 </p>
                 <p className="mt-0.5 truncate font-mono text-[11px] text-zinc-500">
                   {agent.id}
@@ -122,7 +125,7 @@ export function InspectPanel() {
               <button
                 type="button"
                 onClick={() => selectAgent(null)}
-                aria-label="Close inspect panel"
+                aria-label={copy.inspect.close}
                 className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-zinc-800 hover:text-zinc-100"
               >
                 <X className="h-4 w-4" />
@@ -130,22 +133,22 @@ export function InspectPanel() {
             </header>
 
             <section className="border-b border-zinc-800 px-4 py-3">
-              <h3 className="mb-1 text-[10px] font-medium tracking-wider text-zinc-500 uppercase">
-                Stats
+              <h3 className="kicker mb-1 text-[10px] font-medium text-zinc-500">
+                {copy.inspect.stats}
               </h3>
-              <StatRow label="Wealth" value={agent.wealth.toFixed(1)} />
-              <StatRow label="Metabolism" value={metabolism.toFixed(2)} />
-              <StatRow label="Burden" value={agent.burden.toFixed(2)} />
+              <StatRow label={copy.inspect.wealth} value={agent.wealth.toFixed(1)} />
+              <StatRow label={copy.inspect.metabolism} value={metabolism.toFixed(2)} />
+              <StatRow label={copy.inspect.burden} value={agent.burden.toFixed(2)} />
             </section>
 
             <section className="flex min-h-0 flex-1 flex-col px-4 py-3">
-              <h3 className="mb-2 text-[10px] font-medium tracking-wider text-zinc-500 uppercase">
-                Recent Gossip / Memory
+              <h3 className="kicker mb-2 text-[10px] font-medium text-zinc-500">
+                {copy.inspect.gossip}
               </h3>
               {gossip.length === 0 ? (
-                <p className="text-xs text-zinc-500">No encounters recorded yet.</p>
+                <p className="text-xs text-zinc-500">{copy.inspect.noEncounters}</p>
               ) : (
-                <ul className="flex flex-1 flex-col gap-2 overflow-y-auto pr-1">
+                <ul className="flex flex-1 flex-col gap-2 overflow-y-auto pe-1">
                   {gossip.map((record, index) => (
                     <GossipRow
                       key={`${record.tick}-${record.opponentId}-${index}`}

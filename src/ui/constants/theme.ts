@@ -12,7 +12,6 @@ import {
 export const CELL_SIZE = 32;
 
 export interface AgentVisualConfig {
-  label: string;
   Icon: LucideIcon;
   /** Accent color used by panels and charts. */
   color: string;
@@ -23,42 +22,36 @@ export interface AgentVisualConfig {
 
 export const AGENT_THEME: Record<AgentType, AgentVisualConfig> = {
   HARDWORKER_COPYCAT: {
-    label: "HardWorker Copycat",
     Icon: HardHat,
     color: "#18D6C6",
     fill: "#18D6C6",
     badgeBg: "bg-[#18D6C6]/15 text-[#18D6C6] border-[#18D6C6]/30",
   },
   CONTENTED_ALTRUIST: {
-    label: "Contented Altruist",
     Icon: Heart,
     color: "#F43075",
     fill: "#F43075",
     badgeBg: "bg-[#F43075]/15 text-[#FF6B9E] border-[#F43075]/30",
   },
   TALENTED_GRUDGER: {
-    label: "Talented Grudger",
     Icon: Sparkles,
     color: "#E2791C",
     fill: "#E2791C",
     badgeBg: "bg-[#E2791C]/15 text-[#F59E4B] border-[#E2791C]/30",
   },
   ARISTOCRAT_VIP: {
-    label: "Aristocrat VIP",
     Icon: Crown,
     color: "#F60609",
     fill: "#F60609",
     badgeBg: "bg-[#F60609]/15 text-[#FF5A5C] border-[#F60609]/30",
   },
   OPTIMIZER_DETECTIVE: {
-    label: "Optimizer Detective",
     Icon: ScanEye,
     color: "#7C6CFF",
     fill: "#7C6CFF",
     badgeBg: "bg-[#7C6CFF]/15 text-[#A89DFF] border-[#7C6CFF]/30",
   },
   ROBBER_OPPORTUNIST: {
-    label: "Robber Opportunist",
     Icon: VenetianMask,
     color: "#E2E8F0",
     fill: "#F1F5F9",

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Minus, Move, Plus } from "lucide-react";
+import { useCopy } from "../../../i18n/useLangStore";
 import { useGameStore } from "../../../store/useGameStore";
 import { CELL_SIZE } from "../../constants/theme";
 import { useBumpTicks } from "../../hooks/useFloatingEvents";
@@ -46,6 +47,7 @@ export function WorldMap() {
   const selectedAgentId = useGameStore((s) => s.selectedAgentId);
   const selectAgent = useGameStore((s) => s.selectAgent);
   const bumpTicks = useBumpTicks();
+  const mapCopy = useCopy().map;
 
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -269,16 +271,16 @@ export function WorldMap() {
         <FloatingEventsLayer />
       </div>
 
-      <div className="absolute bottom-4 left-4 z-40 flex items-center gap-2">
+      <div className="absolute start-4 bottom-4 z-40 flex items-center gap-2">
         <div className="glass-panel pointer-events-none flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-slate-300">
           <Move className="h-3.5 w-3.5" />
-          Drag to pan
+          {mapCopy.dragToPan}
         </div>
 
         <div className="glass-panel flex items-center gap-1 rounded-full p-1 shadow-lg shadow-black/30">
           <button
             type="button"
-            aria-label="Zoom out"
+            aria-label={mapCopy.zoomOut}
             onClick={(e) => {
               e.stopPropagation();
               zoomTowardCenter(-1);
@@ -292,7 +294,7 @@ export function WorldMap() {
           </span>
           <button
             type="button"
-            aria-label="Zoom in"
+            aria-label={mapCopy.zoomIn}
             onClick={(e) => {
               e.stopPropagation();
               zoomTowardCenter(1);
